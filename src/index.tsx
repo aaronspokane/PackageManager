@@ -5,6 +5,7 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import './index.css';
 import App from './App';
 import { appTheme } from './themes/theme';
+import { RecoilRoot } from "recoil";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -13,7 +14,9 @@ root.render(
   <React.StrictMode>
     <ThemeProvider theme={appTheme}>
     <CssBaseline />  
+    <RecoilRoot>
       <App />
+    </RecoilRoot>
     </ThemeProvider>
   </React.StrictMode>
 );

@@ -10,7 +10,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import ConfigLoader from './ConfigLoader';
-import PaymentForm from './PaymentForm';
+import FileCreation from './FileCreation';
 import Review from './Review';
 
 function Copyright() {
@@ -24,14 +24,14 @@ function Copyright() {
   );
 }
 
-const steps = ['Config Loader', 'Step 2', 'Step 3'];
+const steps = ['Config Loader', 'File Creation', 'Step 3'];
 
 function getStepContent(step: number) {
   switch (step) {
     case 0:
       return <ConfigLoader />;
     case 1:
-      return <PaymentForm />;
+      return <FileCreation />;
     case 2:
       return <Review />;
     default:
@@ -39,7 +39,7 @@ function getStepContent(step: number) {
   }
 }
 
-export default function Checkout() {
+export default function Main() {
   const [activeStep, setActiveStep] = React.useState(0);
 
   const handleNext = () => {
@@ -70,7 +70,7 @@ export default function Checkout() {
       <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
         <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
           <Typography component="h1" variant="h4" align="center">
-            Checkout
+            Package Wizard
           </Typography>
           <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
             {steps.map((label) => (

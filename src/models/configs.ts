@@ -1,5 +1,7 @@
 export type Configs = {
     apiConfig: string,
-    packageConfig: string
+    apiConfigName: string,
+    packageConfig: string,
+    packageConfigName: string,
 };
 
