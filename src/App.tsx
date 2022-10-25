@@ -1,11 +1,20 @@
 import React from 'react';
-import Button from '@mui/material/Button';
+import Main from './pages/Main';
+import {
+  Route,
+  Routes,
+  BrowserRouter,
+} from "react-router-dom";
 
-function App() {
+const App = () => {
   return (
-    <div>
-      <Button variant="contained">Hello World again</Button>
-    </div>
+    <>
+       <BrowserRouter>       
+        <Routes>   
+            <Route path="/" element={<Main />} />   
+          </Routes>       
+       </BrowserRouter>
+    </>
   );
 }
 
