@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import Grid from "@mui/material/Grid";
+import { Grid, TextField }  from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { useRecoilState } from "recoil";
 import { Config } from "../state/Atoms";
@@ -27,6 +27,13 @@ export default function AddressForm() {
     });
     fileReader.readAsText(e.target.files[0]);
   };
+
+  const filePathChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setFileData((oldConfig) => {
+      return { ...oldConfig, [e.target.name]: e.target.value}     
+    });        
+  }
 
   return (
     <React.Fragment>
@@ -66,6 +73,17 @@ export default function AddressForm() {
           <Typography variant="h6" fontSize={15} gutterBottom color="grey">
             Package Xml File: {fileData.packageConfigName}
           </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            required
+            name="packageConfigFilePath"
+            label="Package Xml file Path"
+            fullWidth            
+            variant="standard"   
+            value={fileData.packageConfigFilePath}         
+            onChange={filePathChange}          
+          />
         </Grid>
       </Grid>
     </React.Fragment>

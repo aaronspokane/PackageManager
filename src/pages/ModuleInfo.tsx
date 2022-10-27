@@ -6,6 +6,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { useRecoilValue, useRecoilState } from "recoil";
 import { Config, Module } from "../state/Atoms";
+import { Button } from "@mui/material";
 
 export default function ModuleInfo() {
   const configList = useRecoilValue(Config);
@@ -25,12 +26,13 @@ export default function ModuleInfo() {
 
   const PopulateFields = () => {
     const moduleName =
-      xmlDoc.current!.getElementsByTagName("Package")[0].getAttribute("name") ??
-      "";
+      xmlDoc.current!.getElementsByTagName("Package")[0].getAttribute("name") ?? "";
     const moduleDescription =
-      xmlDoc
-        .current!.getElementsByTagName("Package")[0]
-        .getAttribute("description") ?? "";
+      xmlDoc.current!.getElementsByTagName("Package")[0].getAttribute("description") ?? "";
+    
+    const globalList = xmlDoc.current!.querySelectorAll('Variables Variable[VariableType="GLOBAL"]');
+    const serviceList = xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])');
+
     setmoduleInfo((oldData) => {
       return {
         ...oldData,
@@ -50,6 +52,16 @@ export default function ModuleInfo() {
             label="Folder Name"
             fullWidth
             value={moduleInfo.moduleName}
+            variant="standard"
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            required
+            id="filePath"
+            label="Folder Path"
+            fullWidth
+            value={moduleInfo.modulePath}
             variant="standard"
           />
         </Grid>
@@ -83,6 +95,9 @@ export default function ModuleInfo() {
             autoComplete="cc-csc"
             variant="standard"
           />
+        </Grid>
+        <Grid item xs={12}>
+          <Button variant="contained">Create Files</Button>
         </Grid>
         <Grid item xs={12}>
           <FormControlLabel

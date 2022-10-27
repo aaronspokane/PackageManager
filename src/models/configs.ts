@@ -3,4 +3,5 @@ export type Configs = {
   apiConfigName: string;
   packageConfig: string;
   packageConfigName: string;
+  packageConfigFilePath: string;
 };

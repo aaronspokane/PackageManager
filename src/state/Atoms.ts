@@ -7,12 +7,19 @@ const defaultConfig: Configs = {
   apiConfigName: "",
   packageConfig: "",
   packageConfigName: "",
+  packageConfigFilePath: "",
 };
 
 const defaultModuleInfo: ModuleInfo = {
   moduleName: "",
   moduleDescription: "",
   modulePath: "",
+  moduleDependencies: "",
+  serviceToEnable: "",
+  serviceDescription: "",
+  docPath: "",
+  globalVariables: new Array<string>(),
+  serviceVariables: new Array<string>()
 };
 
 export const Config = atom({

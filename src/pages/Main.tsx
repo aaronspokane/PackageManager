@@ -23,7 +23,7 @@ function Copyright() {
   );
 }
 
-const steps = ["Config Loader", "Module Info", "Step 3"];
+const steps = ["Config Loader", "Module Info", "Confluence Info", "Jira Info"];
 
 function getStepContent(step: number) {
   switch (step) {
@@ -33,6 +33,8 @@ function getStepContent(step: number) {
       return <ModuleInfo />;
     case 2:
       return <Review />;
+    case 3:
+        return <Review />;
     default:
       throw new Error("Unknown step");
   }
@@ -66,7 +68,7 @@ export default function Main() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
+      <Container component="main" maxWidth="md" sx={{ mb: 4 }}>
         <Paper
           variant="outlined"
           sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}
