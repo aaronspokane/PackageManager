@@ -6,6 +6,12 @@ export type ModuleInfo = {
   serviceToEnable: string;
   serviceDescription: string;
   docPath: string;
-  globalVariables: Array<string>;
-  serviceVariables: Array<string>
+  globalVariables: Array<Variable>;
+  serviceVariables: Array<Variable>
 };
+
+export type Variable = {
+    Name: string;
+    Value: string;
+    VariableDescription: string;
+}

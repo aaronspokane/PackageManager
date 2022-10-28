@@ -7,6 +7,7 @@ import Checkbox from "@mui/material/Checkbox";
 import { useRecoilValue, useRecoilState } from "recoil";
 import { Config, Module } from "../state/Atoms";
 import { Button } from "@mui/material";
+import { Variable } from "../models/ModuleInfo";
 
 export default function ModuleInfo() {
   const configList = useRecoilValue(Config);
@@ -31,13 +32,23 @@ export default function ModuleInfo() {
       xmlDoc.current!.getElementsByTagName("Package")[0].getAttribute("description") ?? "";
     
     const globalList = xmlDoc.current!.querySelectorAll('Variables Variable[VariableType="GLOBAL"]');
-    const serviceList = xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])');
+    //const serviceList = xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])');
+    
+    let globalVariables = Array<Variable>();
+    globalList.forEach(node => {
+      globalVariables.push({
+        Name: node.getAttribute("Name") ?? "",
+        Value: node.getAttribute("Value") ?? "",
+        VariableDescription: node.getAttribute("VariableDescription") ?? ""
+      });
+    });
 
     setmoduleInfo((oldData) => {
       return {
         ...oldData,
         moduleName: moduleName,
         moduleDescription: moduleDescription,
+        globalVariables: globalVariables,
       };
     });
   };
@@ -97,12 +108,12 @@ export default function ModuleInfo() {
           />
         </Grid>
         <Grid item xs={12}>
-          <Button variant="contained">Create Files</Button>
+          <Button variant="contained" color="secondary">Create Files</Button>
         </Grid>
         <Grid item xs={12}>
           <FormControlLabel
-            control={<Checkbox color="secondary" name="saveCard" value="yes" />}
-            label="Remember credit card details for next time"
+            control={<Checkbox color="primary" name="saveCard" value="yes" />}
+            label="Did you commit files to Github"
           />
         </Grid>
       </Grid>

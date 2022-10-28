@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 import { Configs } from "../models/Configs";
-import { ModuleInfo } from "../models/ModuleInfo";
+import { ModuleInfo, Variable } from "../models/ModuleInfo";
 
 const defaultConfig: Configs = {
   apiConfig: "",
@@ -18,8 +18,8 @@ const defaultModuleInfo: ModuleInfo = {
   serviceToEnable: "",
   serviceDescription: "",
   docPath: "",
-  globalVariables: new Array<string>(),
-  serviceVariables: new Array<string>()
+  globalVariables: new Array<Variable>(),
+  serviceVariables: new Array<Variable>()
 };
 
 export const Config = atom({
