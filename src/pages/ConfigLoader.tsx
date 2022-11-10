@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import { useRecoilState } from "recoil";
 import { Config } from "../state/Atoms";
 
-export default function AddressForm() {
+export default function ConfigLoader() {
   let fileReader: FileReader;
   const inputId = useRef("");
   const [fileData, setFileData] = useRecoilState(Config);

@@ -8,6 +8,7 @@ import { useRecoilValue, useRecoilState } from "recoil";
 import { Config, Module } from "../state/Atoms";
 import { Button } from "@mui/material";
 import { Variable } from "../models/ModuleInfo";
+import API from '../api/Api';
 
 export default function ModuleInfo() {
   const configList = useRecoilValue(Config);
@@ -30,12 +31,24 @@ export default function ModuleInfo() {
       xmlDoc.current!.getElementsByTagName("Package")[0].getAttribute("name") ?? "";
     const moduleDescription =
       xmlDoc.current!.getElementsByTagName("Package")[0].getAttribute("description") ?? "";
+    const docPath =
+      xmlDoc.current!.getElementsByTagName("DocsPath")[0].textContent ?? "";
+    const serviceToEnable = xmlDoc.current!.querySelector('Service Description')?.textContent ?? "";    
     
     const globalList = xmlDoc.current!.querySelectorAll('Variables Variable[VariableType="GLOBAL"]');
-    //const serviceList = xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])');
+    const serviceList = xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])');
     
     let globalVariables = Array<Variable>();
     globalList.forEach(node => {
+      globalVariables.push({
+        Name: node.getAttribute("Name") ?? "",
+        Value: node.getAttribute("Value") ?? "",
+        VariableDescription: node.getAttribute("VariableDescription") ?? ""
+      });
+    });
+
+    let serviceVariables = Array<Variable>();
+    serviceList.forEach(node => {
       globalVariables.push({
         Name: node.getAttribute("Name") ?? "",
         Value: node.getAttribute("Value") ?? "",
@@ -48,8 +61,27 @@ export default function ModuleInfo() {
         ...oldData,
         moduleName: moduleName,
         moduleDescription: moduleDescription,
+        docPath: docPath,
+        serviceToEnable: serviceToEnable,
         globalVariables: globalVariables,
+        serviceVariables: serviceVariables
       };
+    });
+  };  
+
+  const createFiles = async (e: React.MouseEvent<HTMLButtonElement>) : Promise<void> => {
+    API.post(`/createFiles`, {...moduleInfo, ...configList})
+    .then( (result) => {
+        console.log(`Success... ${result}`);
+        return result;
+    })
+    .catch(err => console.log("error"));
+  }
+
+  const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setmoduleInfo((oldConfig) => {
+      return { ...oldConfig, [e.target.name]: e.target.value };
     });
   };
 
@@ -59,20 +91,22 @@ export default function ModuleInfo() {
         <Grid item xs={12}>
           <TextField
             required
-            id="fldName"
+            id="moduleName"
             label="Folder Name"
             fullWidth
             value={moduleInfo.moduleName}
+            onChange={inputOnChange}
             variant="standard"
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             required
-            id="filePath"
+            name="modulePath"
             label="Folder Path"
             fullWidth
             value={moduleInfo.modulePath}
+            onChange={inputOnChange}
             variant="standard"
           />
         </Grid>
@@ -86,29 +120,39 @@ export default function ModuleInfo() {
             variant="standard"
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <TextField
             required
-            id="expDate"
-            label="Expiry date"
+            id="Description"
+            label="Doc path"
             fullWidth
-            autoComplete="cc-exp"
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <TextField
-            required
-            id="cvv"
-            label="CVV"
-            helperText="Last three digits on signature strip"
-            fullWidth
-            autoComplete="cc-csc"
+            value={moduleInfo.docPath}
             variant="standard"
           />
         </Grid>
         <Grid item xs={12}>
-          <Button variant="contained" color="secondary">Create Files</Button>
+          <TextField
+            required
+            name="moduleDependencies"
+            label="Module Dependencies"
+            fullWidth
+            value={moduleInfo.moduleDependencies}
+            onChange={inputOnChange}
+            variant="standard"
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            required
+            id="serviceToEnable"
+            label="Services to enable"
+            fullWidth
+            value={moduleInfo.serviceToEnable}
+            variant="standard"
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Button variant="contained" color="secondary" onClick={createFiles}>Create Files</Button>
         </Grid>
         <Grid item xs={12}>
           <FormControlLabel
