@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
@@ -7,8 +7,10 @@ import Checkbox from "@mui/material/Checkbox";
 import { useRecoilValue, useRecoilState } from "recoil";
 import { Config, Module } from "../state/Atoms";
 import { Button } from "@mui/material";
+import { v4 as uuidv4 } from 'uuid';
 import { Variable } from "../models/ModuleInfo";
 import API from '../api/Api';
+import CustomTextBox from '../components/CustomTextBox';
 
 export default function ModuleInfo() {
   const configList = useRecoilValue(Config);
@@ -32,39 +34,38 @@ export default function ModuleInfo() {
     const moduleDescription =
       xmlDoc.current!.getElementsByTagName("Package")[0].getAttribute("description") ?? "";
     const docPath =
-      xmlDoc.current!.getElementsByTagName("DocsPath")[0].textContent ?? "";
-    const serviceToEnable = xmlDoc.current!.querySelector('Service Description')?.textContent ?? "";    
-    
+      xmlDoc.current!.getElementsByTagName("DocsPath")[0].textContent?.replace("..", "MAXQueue\\Server") ?? "";            
+    const serviceToEnable = xmlDoc.current!.querySelector('Service Description')?.textContent ?? "";  
     const globalList = xmlDoc.current!.querySelectorAll('Variables Variable[VariableType="GLOBAL"]');
     const serviceList = xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])');
     
-    let globalVariables = Array<Variable>();
+    let _globalVariables = Array<Variable>();
     globalList.forEach(node => {
-      globalVariables.push({
+      _globalVariables.push({
         Name: node.getAttribute("Name") ?? "",
         Value: node.getAttribute("Value") ?? "",
         VariableDescription: node.getAttribute("VariableDescription") ?? ""
       });
     });
 
-    let serviceVariables = Array<Variable>();
+    let _serviceVariables = Array<Variable>();
     serviceList.forEach(node => {
-      globalVariables.push({
+      _serviceVariables.push({
         Name: node.getAttribute("Name") ?? "",
         Value: node.getAttribute("Value") ?? "",
         VariableDescription: node.getAttribute("VariableDescription") ?? ""
       });
     });
 
-    setmoduleInfo((oldData) => {
+      setmoduleInfo((oldData) => {
       return {
         ...oldData,
         moduleName: moduleName,
-        moduleDescription: moduleDescription,
+        moduleDescription: moduleDescription,        
         docPath: docPath,
         serviceToEnable: serviceToEnable,
-        globalVariables: globalVariables,
-        serviceVariables: serviceVariables
+        globalVariables: _globalVariables,
+        serviceVariables: _serviceVariables
       };
     });
   };  
@@ -80,18 +81,34 @@ export default function ModuleInfo() {
 
   const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    setmoduleInfo((oldConfig) => {
-      return { ...oldConfig, [e.target.name]: e.target.value };
+    setmoduleInfo((oldModuleInfo) => {
+      return { ...oldModuleInfo, [e.target.name]: e.target.value };
     });
-  };
+  };  
+
+  const inputOnDependecieChange = useCallback ((e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+    e.preventDefault();
+    
+    let _moduleInfo = {...moduleInfo.moduleDependencies};  
+    _moduleInfo[key] = e.target.value;
+
+    if(!Object.values(_moduleInfo).includes(""))
+      Object.assign(_moduleInfo, {[uuidv4()]: ""});    
+
+    setmoduleInfo((oldModuleInfo) => {
+      return { ...oldModuleInfo, [e.target.name]: _moduleInfo };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <React.Fragment>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <TextField
+          <CustomTextBox
             required
             id="moduleName"
+            name="moduleName"
             label="Folder Name"
             fullWidth
             value={moduleInfo.moduleName}
@@ -100,7 +117,7 @@ export default function ModuleInfo() {
           />
         </Grid>
         <Grid item xs={12}>
-          <TextField
+          <CustomTextBox
             required
             name="modulePath"
             label="Folder Path"
@@ -111,48 +128,63 @@ export default function ModuleInfo() {
           />
         </Grid>
         <Grid item xs={12}>
-          <TextField
+          <CustomTextBox
             required
-            id="Description"
+            id="moduleDescription"
+            name="moduleDescription"
             label="Description"
             fullWidth
             value={moduleInfo.moduleDescription}
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            required
-            id="Description"
-            label="Doc path"
-            fullWidth
-            value={moduleInfo.docPath}
-            variant="standard"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            required
-            name="moduleDependencies"
-            label="Module Dependencies"
-            fullWidth
-            value={moduleInfo.moduleDependencies}
             onChange={inputOnChange}
             variant="standard"
           />
         </Grid>
         <Grid item xs={12}>
-          <TextField
+          <CustomTextBox
+            required
+            id="docPath"
+            name="docPath"
+            label="Doc path"
+            fullWidth
+            value={moduleInfo.docPath}
+            onChange={inputOnChange}
+            variant="standard"
+          />
+        </Grid>        
+        {
+          Object.entries(moduleInfo.moduleDependencies).map(([key, value], index) => {
+            return (
+              <Grid item xs={12} key={key}>
+                <CustomTextBox
+                  required
+                  name="moduleDependencies"
+                  label="Module Dependencies"
+                  value={value}
+                  fullWidth                  
+                  onChange={inputOnDependecieChange}
+                  variant="standard"
+                  index={key}
+                />
+              </Grid>
+            );
+          })
+        }       
+        <Grid item xs={12}>
+          <CustomTextBox
             required
             id="serviceToEnable"
+            name="serviceToEnable"
             label="Services to enable"
             fullWidth
             value={moduleInfo.serviceToEnable}
+            onChange={inputOnChange}
             variant="standard"
           />
         </Grid>
         <Grid item xs={12}>
-          <Button variant="contained" color="secondary" onClick={createFiles}>Create Files</Button>
+          <Button variant="contained" color="secondary" onClick={createFiles}>
+            Create Files
+          </Button>
         </Grid>
         <Grid item xs={12}>
           <FormControlLabel

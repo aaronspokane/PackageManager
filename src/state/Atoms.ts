@@ -1,6 +1,7 @@
 import { atom } from "recoil";
 import { Configs } from "../models/Configs";
 import { ModuleInfo, Variable } from "../models/ModuleInfo";
+import { v4 as uuidv4 } from 'uuid';
 
 const defaultConfig: Configs = {
   apiConfig: "",
@@ -14,7 +15,7 @@ const defaultModuleInfo: ModuleInfo = {
   moduleName: "",
   moduleDescription: "",
   modulePath: "",
-  moduleDependencies: "",
+  moduleDependencies: {[uuidv4()]: ""},
   serviceToEnable: "",
   serviceDescription: "",
   docPath: "",
