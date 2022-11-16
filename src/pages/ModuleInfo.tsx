@@ -18,12 +18,14 @@ export default function ModuleInfo() {
   let xmlDoc = useRef<Document | null>(null);
 
   useEffect(() => {
-    let parser = new DOMParser();
-    xmlDoc.current = parser.parseFromString(
-      configList.packageConfig,
-      "text/xml"
-    );
-    PopulateFields();
+    if(!moduleInfo.loaded) {
+      let parser = new DOMParser();
+      xmlDoc.current = parser.parseFromString(
+        configList.packageConfig,
+        "text/xml"
+      );
+      PopulateFields();
+    }
 
     return () => {};
   }, []);
@@ -65,7 +67,8 @@ export default function ModuleInfo() {
         docPath: docPath,
         serviceToEnable: serviceToEnable,
         globalVariables: _globalVariables,
-        serviceVariables: _serviceVariables
+        serviceVariables: _serviceVariables, 
+        loaded: true,
       };
     });
   };  
@@ -86,10 +89,10 @@ export default function ModuleInfo() {
     });
   };  
 
-  const inputOnDependecieChange = useCallback ((e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+  const inputOnDependecieChange = useCallback ((e: React.ChangeEvent<HTMLInputElement>, key: string, type: string) => {
     e.preventDefault();
     
-    let _moduleInfo = {...moduleInfo.moduleDependencies};  
+    let _moduleInfo = type === "facade" ? {...moduleInfo.extendedFacades} : {...moduleInfo.moduleDependencies};  
     _moduleInfo[key] = e.target.value;
 
     if(!Object.values(_moduleInfo).includes(""))
@@ -155,8 +158,7 @@ export default function ModuleInfo() {
           Object.entries(moduleInfo.moduleDependencies).map(([key, value], index) => {
             return (
               <Grid item xs={12} key={key}>
-                <CustomTextBox
-                  required
+                <CustomTextBox                  
                   name="moduleDependencies"
                   label="Module Dependencies"
                   value={value}
@@ -164,6 +166,24 @@ export default function ModuleInfo() {
                   onChange={inputOnDependecieChange}
                   variant="standard"
                   index={key}
+                />
+              </Grid>
+            );
+          })
+        }       
+        {
+          Object.entries(moduleInfo.extendedFacades).map(([key, value], index) => {
+            return (
+              <Grid item xs={12} key={key}>
+                <CustomTextBox                  
+                  name="extendedFacades"
+                  label="Extended Facades"
+                  value={value}
+                  fullWidth                  
+                  onChange={inputOnDependecieChange}
+                  variant="standard"
+                  index={key}
+                  type="facade"
                 />
               </Grid>
             );

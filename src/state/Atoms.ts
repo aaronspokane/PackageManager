@@ -11,16 +11,18 @@ const defaultConfig: Configs = {
   packageConfigFilePath: "",
 };
 
-const defaultModuleInfo: ModuleInfo = {
+export const defaultModuleInfo: ModuleInfo = {
   moduleName: "",
   moduleDescription: "",
   modulePath: "",
   moduleDependencies: {[uuidv4()]: ""},
+  extendedFacades: {[uuidv4()]: ""},
   serviceToEnable: "",
   serviceDescription: "",
   docPath: "",
   globalVariables: new Array<Variable>(),
-  serviceVariables: new Array<Variable>()
+  serviceVariables: new Array<Variable>(),
+  loaded: false,
 };
 
 export const Config = atom({

@@ -7,12 +7,13 @@ type _moduleInfo = {
     label?: string;
     fullWidth?: boolean;
     variant?: "standard" | "filled" | "outlined" | undefined; 
-    onChange?: (e: any, key: string) => void;
+    onChange?: (e: any, key: string, name: string) => void;
     index?: string;
     name?: string;
+    type?: string;
 }
 
-const CustomTextBox = ({id, name, required, label, fullWidth, value, index = "-1", variant, onChange}: _moduleInfo) => {
+const CustomTextBox = ({id, name, required, label, fullWidth, value, index = "-1", variant, type, onChange}: _moduleInfo) => {
     return (
         <TextField
             id={id}
@@ -21,7 +22,7 @@ const CustomTextBox = ({id, name, required, label, fullWidth, value, index = "-1
             label={label}
             fullWidth={fullWidth}            
             value={value}
-            onChange={(e) => onChange ? onChange(e, index) : null} 
+            onChange={(e) => onChange ? onChange(e, index, type || "") : null} 
             variant={variant}
         />
     )

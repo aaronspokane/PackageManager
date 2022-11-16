@@ -2,16 +2,22 @@ import React, { useRef } from "react";
 import { Grid, TextField }  from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { useRecoilState } from "recoil";
-import { Config } from "../state/Atoms";
+import { Config, Module } from "../state/Atoms";
+import { defaultModuleInfo } from "../state/Atoms";
 
 export default function ConfigLoader() {
   let fileReader: FileReader;
   const inputId = useRef("");
   const [fileData, setFileData] = useRecoilState(Config);
+  const [, setmoduleInfo] = useRecoilState(Module);
 
   const handleFileRead = (e: any) => {
     setFileData((oldConfig) => {
       return { ...oldConfig, [inputId.current]: e.target.result as string };
+    });
+
+    setmoduleInfo(() => {
+      return defaultModuleInfo;
     });
   };
 
