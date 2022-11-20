@@ -11,7 +11,9 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import ConfigLoader from "./ConfigLoader";
 import ModuleInfo from "./ModuleInfo";
-import Review from "./Review";
+import Review from "./Wiki";
+import { useRecoilValue } from "recoil";
+import { Config } from "../state/Atoms";
 
 function Copyright() {
   return (
@@ -42,8 +44,12 @@ function getStepContent(step: number) {
 
 export default function Main() {
   const [activeStep, setActiveStep] = React.useState(0);
+  const pkgConfig = useRecoilValue(Config);
 
-  const handleNext = () => {
+  const handleNext = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if(activeStep === 0 && (!pkgConfig || pkgConfig.packageConfig.length <= 0))
+      return;
+      
     setActiveStep(activeStep + 1);
   };
 

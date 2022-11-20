@@ -12,8 +12,8 @@ import { Variable } from "../models/ModuleInfo";
 import API from '../api/Api';
 import CustomTextBox from '../components/CustomTextBox';
 
-export default function ModuleInfo() {
-  const configList = useRecoilValue(Config);
+const ModuleInfo = () => {
+  const configInfo = useRecoilValue(Config);
   const [moduleInfo, setmoduleInfo] = useRecoilState(Module);
   let xmlDoc = useRef<Document | null>(null);
 
@@ -21,7 +21,7 @@ export default function ModuleInfo() {
     if(!moduleInfo.loaded) {
       let parser = new DOMParser();
       xmlDoc.current = parser.parseFromString(
-        configList.packageConfig,
+        configInfo.packageConfig,
         "text/xml"
       );
       PopulateFields();
@@ -74,8 +74,8 @@ export default function ModuleInfo() {
   };  
 
   const createFiles = async (e: React.MouseEvent<HTMLButtonElement>) : Promise<void> => {
-    API.post(`/createFiles`, {...moduleInfo, ...configList})
-    .then( (result) => {
+    API.post(`/createFiles`, {...moduleInfo, ...configInfo})
+    .then((result) => {
         console.log(`Success... ${result}`);
         return result;
     })
@@ -216,3 +216,5 @@ export default function ModuleInfo() {
     </React.Fragment>
   );
 }
+
+export default ModuleInfo;
