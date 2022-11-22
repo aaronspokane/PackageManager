@@ -4,6 +4,8 @@ export type ModuleInfo = {
   modulePath: string;
   moduleDependencies: Record<string, string>;
   extendedFacades: Record<string, string>;
+  dataEvents: Record<string, string>;
+  executeSql: Record<string, string>;
   serviceToEnable: string;
   serviceDescription: string;
   docPath: string;

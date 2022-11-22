@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Variable } from "../models/ModuleInfo";
 import API from '../api/Api';
 import CustomTextBox from '../components/CustomTextBox';
+import { stringify } from "querystring";
 
 const ModuleInfo = () => {
   const configInfo = useRecoilValue(Config);
@@ -37,11 +38,16 @@ const ModuleInfo = () => {
       xmlDoc.current!.getElementsByTagName("Package")[0].getAttribute("description") ?? "";
     const docPath =
       xmlDoc.current!.getElementsByTagName("DocsPath")[0].textContent?.replace("..", "MAXQueue\\Server") ?? "";            
-    const serviceToEnable = xmlDoc.current!.querySelector('Service Description')?.textContent ?? "";  
-    const globalList = xmlDoc.current!.querySelectorAll('Variables Variable[VariableType="GLOBAL"]');
-    const serviceList = xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])');
+    const serviceToEnable = 
+      xmlDoc.current!.querySelector('Service Description')?.textContent ?? "";  
+    const globalList = 
+      xmlDoc.current!.querySelectorAll('Variables Variable[VariableType="GLOBAL"]');
+    const serviceList = 
+      xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])');
+    const dataEvents = 
+      xmlDoc.current!.querySelectorAll("DataEventTable");
     
-    let _globalVariables = Array<Variable>();
+    let _globalVariables = [...moduleInfo.globalVariables];
     globalList.forEach(node => {
       _globalVariables.push({
         Name: node.getAttribute("Name") ?? "",
@@ -50,7 +56,7 @@ const ModuleInfo = () => {
       });
     });
 
-    let _serviceVariables = Array<Variable>();
+    let _serviceVariables = [...moduleInfo.serviceVariables];
     serviceList.forEach(node => {
       _serviceVariables.push({
         Name: node.getAttribute("Name") ?? "",
@@ -59,7 +65,25 @@ const ModuleInfo = () => {
       });
     });
 
-      setmoduleInfo((oldData) => {
+    let _dataEvents: Record<string,string> = {};
+    if (!!dataEvents.length) {
+      dataEvents.forEach((node) => {
+        const name = node.querySelector("Name")?.textContent ?? "";
+        const action = node.querySelector("Action")?.textContent ?? "";
+        Object.assign(_dataEvents, { [uuidv4()]: `${name} - ${action}` });
+      });
+
+      if(!Object.values(_dataEvents).includes(""))
+        Object.assign(_dataEvents, {[uuidv4()]: ""});
+
+      Object.assign(dataEvents, moduleInfo.dataEvents );
+    }
+    else 
+    {
+      _dataEvents = {...moduleInfo.dataEvents};
+    }
+
+    setmoduleInfo((oldData) => {
       return {
         ...oldData,
         moduleName: moduleName,
@@ -68,6 +92,7 @@ const ModuleInfo = () => {
         serviceToEnable: serviceToEnable,
         globalVariables: _globalVariables,
         serviceVariables: _serviceVariables, 
+        dataEvents: _dataEvents,
         loaded: true,
       };
     });
@@ -87,12 +112,26 @@ const ModuleInfo = () => {
     setmoduleInfo((oldModuleInfo) => {
       return { ...oldModuleInfo, [e.target.name]: e.target.value };
     });
-  };  
+  };    
 
-  const inputOnDependecieChange = useCallback ((e: React.ChangeEvent<HTMLInputElement>, key: string, type: string) => {
-    e.preventDefault();
-    
-    let _moduleInfo = type === "facade" ? {...moduleInfo.extendedFacades} : {...moduleInfo.moduleDependencies};  
+  const onListChange = useCallback ((e: React.ChangeEvent<HTMLInputElement>, key: string, type: string) => {
+    e.preventDefault();   
+        
+    let _moduleInfo;  
+    switch (type) {
+      case "facade":
+        _moduleInfo = { ...moduleInfo.extendedFacades };
+        break;
+      case "moduleDependency":
+        _moduleInfo = { ...moduleInfo.moduleDependencies };
+        break;       
+      case "dataEvent":
+        _moduleInfo = { ...moduleInfo.dataEvents };
+        break;
+      case "sql":
+        _moduleInfo = { ...moduleInfo.executeSql };
+        break;
+    }
     _moduleInfo[key] = e.target.value;
 
     if(!Object.values(_moduleInfo).includes(""))
@@ -101,8 +140,8 @@ const ModuleInfo = () => {
     setmoduleInfo((oldModuleInfo) => {
       return { ...oldModuleInfo, [e.target.name]: _moduleInfo };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    
+  }, [moduleInfo]);
 
   return (
     <React.Fragment>
@@ -163,9 +202,10 @@ const ModuleInfo = () => {
                   label="Module Dependencies"
                   value={value}
                   fullWidth                  
-                  onChange={inputOnDependecieChange}
+                  onChange={onListChange}
                   variant="standard"
                   index={key}
+                  type="moduleDependency"
                 />
               </Grid>
             );
@@ -180,7 +220,7 @@ const ModuleInfo = () => {
                   label="Extended Facades"
                   value={value}
                   fullWidth                  
-                  onChange={inputOnDependecieChange}
+                  onChange={onListChange}
                   variant="standard"
                   index={key}
                   type="facade"
@@ -188,7 +228,43 @@ const ModuleInfo = () => {
               </Grid>
             );
           })
+        }  
+        {
+          Object.entries(moduleInfo.dataEvents).map(([key, value], index) => {
+            return (
+              <Grid item xs={12} key={key}>
+                <CustomTextBox                  
+                  name="dataEvents"
+                  label="Date Events to Enable"
+                  value={value}
+                  fullWidth                  
+                  onChange={onListChange}
+                  variant="standard"
+                  index={key}
+                  type="dataEvent"
+                />
+              </Grid>
+            );
+          })
         }       
+        {
+          Object.entries(moduleInfo.executeSql).map(([key, value], index) => {
+            return (
+              <Grid item xs={12} key={key}>
+                <CustomTextBox                  
+                  name="executeSql"
+                  label="Sql to Execute"
+                  value={value}
+                  fullWidth                  
+                  onChange={onListChange}
+                  variant="standard"
+                  index={key}
+                  type="sql"
+                />
+              </Grid>
+            );
+          })
+        }      
         <Grid item xs={12}>
           <CustomTextBox
             required
