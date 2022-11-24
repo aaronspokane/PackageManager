@@ -15,10 +15,18 @@ import ModalDialog from "../components/ModalDialog";
 const Wiki = () => {  
 
   const [open, setOpen] = useState(false);  
+  const [wikiInfo, setWikiInfo] = useRecoilState(WikiInfo);
 
   const handleDialog = (e: React.MouseEvent<HTMLButtonElement>) => {
     setOpen(!open);
-  }
+  };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setWikiInfo((oldWikiInfo) => {
+      return {...oldWikiInfo, [e.target.name]: e.target.value}  
+    });
+  }  
 
   return (
     <React.Fragment>
@@ -32,15 +40,19 @@ const Wiki = () => {
             multiline={true}  
             rows={2}  
             variant="standard"
+            onChange={onChange}
+            value={wikiInfo.summary}
           />
       </Grid>
       <Grid item xs={12}>
           <TextField            
-            id="link"
-            name="link"
+            id="specificationLink"
+            name="specificationLink"
             label="Specification Link"
             fullWidth 
             variant="standard"
+            onChange={onChange}
+            value={wikiInfo.specificationLink}
           />
       </Grid>
       <Grid item xs={12}>
@@ -50,6 +62,8 @@ const Wiki = () => {
             label="Direction - Which way the data goes (FA->Client or Client->FA)"
             fullWidth 
             variant="standard"
+            onChange={onChange}
+            value={wikiInfo.direction}
           />
       </Grid>
       <Grid item xs={12}>
