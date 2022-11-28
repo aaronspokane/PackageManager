@@ -1,4 +1,6 @@
 import { Wiki} from "../models/Wiki";
+import { XmlEdit } from "../models/XmlEdit";
+import { Configuration } from "../models/Configuration";
 import Constants from '../const/Constants';
 import format from "xml-formatter";
 
@@ -6,11 +8,13 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     
     let _dataEvents = Array<string>();
     let _data = "";
+    let _xmlEdit = new Array<XmlEdit>();
+    let _configuration = new Array<Configuration>();
 
     const dataEvents = xmlDoc.current!.querySelectorAll("DataEventTable");
-    const _summary = wikiInfo.summary ? wikiInfo.summary : Constants.DEFAULT_WIKI_TEXT;
-    const _links = wikiInfo.specificationLink ? wikiInfo.specificationLink : Constants.DEFAULT_WIKI_TEXT;   
-    const _direction = wikiInfo.direction ? wikiInfo.direction : Constants.DEFAULT_WIKI_TEXT;  
+    const _summary = wikiInfo.summary ? wikiInfo.summary : Constants.DEFULT_WIKI_SUMMARY;
+    const _links = wikiInfo.specificationLink ? wikiInfo.specificationLink : Constants.DEFULT_WIKI_SPECIFICATION_LINK;   
+    const _direction = wikiInfo.direction ? wikiInfo.direction : Constants.DEFULT_WIKI_SPECIFICATION_DIRECTION;  
     const globalList = Array.from(xmlDoc.current!.querySelectorAll('Variables Variable[VariableType="GLOBAL"]'));
     const serviceList = Array.from(xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])'));
     const connectors = xmlDoc.current!.querySelectorAll('Connectors Connector');
@@ -19,20 +23,25 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
 
     // toc
     _data = "{toc}\n\n";
+
     // image
     _data += "!nameOfImage.jpg!\n\n";
+
     // summary
     _data += "h1. Summary\n";
     _data += `${_summary}\n\n`;
+
     // specification links
     _data += "h1. Specification Links\n";
     _data += `${_links}\n\n`;
+
     // direction
     _data += "h1. Direction\n";
     _data += `${_direction}\n\n`;
+
     // workflow
     _data += "h1. WorkFlow\n";
-    _data += `* Step by step play of what workflow does.\n\n`; 
+    _data += `* Workflow adapters.\n\n`; 
 
     if(connectors) {
         connectors.forEach((node) => {
@@ -71,11 +80,40 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
                     _description = item.textContent ?? "";
                 }
                 else if(item.nodeName === "DestinationAdapter") {
-                    item.childNodes.forEach((comment) => {
-                        if(comment.nodeName === "Comments") {
-                            _comment = comment.textContent ?? "";
+                    const _destinationAdapter = Array.from(item.childNodes);
+
+                    const _type = _destinationAdapter.filter(x => x.nodeName === "Type");
+                    if(_type && _type[0].textContent === "XmlEdit") {
+                        const _xmlMap = _destinationAdapter.filter(x => x.nodeName === "XmlMap");
+                        if(_xmlMap)
+                        {
+                            _xmlEdit.push(
+                                 {
+                                    description: _description,
+                                    node: Array.from(_xmlMap[0].childNodes).filter(x => x.nodeName === "Node")[0].textContent ?? "",
+                                    value:  Array.from(_xmlMap[0].childNodes).filter(x => x.nodeName === "Value")[0].textContent ?? "",
+                                }
+                            )
                         }
-                    })
+                    }
+                    else if(_type && _type[0].textContent === "Condition") {
+                        const _xmlMap = _destinationAdapter.filter(x => x.nodeName === "Conditions");
+                        const _compareType = _destinationAdapter.filter(x => x.nodeName === "CompareType")[0].textContent;
+                        if(_xmlMap)
+                        {
+                            _configuration.push(
+                                 {
+                                    description: _description,
+                                    valueA: Array.from(_xmlMap[0].childNodes).filter(x => x.nodeName === "ValueA")[0].textContent ?? "",
+                                    valueB: Array.from(_xmlMap[0].childNodes).filter(x => x.nodeName === "ValueB")[0].textContent ?? "",
+                                    operator: Array.from(_xmlMap[0].childNodes).filter(x => x.nodeName === "Operator")[0].textContent ?? "",
+                                    compareType: _compareType ?? "",
+                                 }
+                            )
+                        }
+                    }
+
+                    _comment = _destinationAdapter.filter(x => x.nodeName === "Comments")[0].textContent ?? "";                   
                 }
             });  
 
@@ -85,11 +123,35 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     _data += "{noformat}"; 
     _data += "\n\n";
 
+    // workflow edits
+    _data += "h2. WorkFlow Edits\n";
+    _data += "* Used when edits occur the the xml throughout the workflow\n\n";
+    for(let key in _xmlEdit){
+        _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
+        _data += `Adapter: ${_xmlEdit[key].description}\n`;
+        _data += `   ${_xmlEdit[key].node} = ${_xmlEdit[key].value}\n`;
+        _data += "{noformat} \n\n"; 
+    }
+
+      // workflow Conditions
+      _data += "h2. WorkFlow Conditions\n";
+      _data += "* Used when condition checks occur in the workflow\n\n";
+      for(let key in _configuration){
+          _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
+          _data += `Adapter: ${_configuration[key].description}\n`;
+          _data += `   ${_configuration[key].compareType}\n`;
+          _data += `   {\n`;
+          _data += `      ${_configuration[key].valueA} ${_configuration[key].operator} ${_configuration[key].valueB}\n`;
+          _data += `   }\n`;
+          _data += "{noformat} \n\n"; 
+      }
+
     // technical details
     _data += `h1. Technical Details\n\n`; 
     _data += `h2. Variables\n`; 
     _data += `* List of vars and varx variables that need to be configured and what they relate to.\n\n`; 
     _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
+
     // instance vars
     _data += `* Instance\n\n`;     
       
@@ -103,6 +165,7 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     }
 
     _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
+
     // service vars
     _data += `* Service\n\n`;     
 
