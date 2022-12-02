@@ -48,7 +48,7 @@ const Wiki = () => {
           <TextField            
             id="specificationLink"
             name="specificationLink"
-            label="Specification Link"
+            label="Specification Link (Jira)"
             fullWidth 
             variant="standard"
             onChange={onChange}

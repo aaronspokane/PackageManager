@@ -162,7 +162,7 @@ const ModuleInfo = () => {
           <CustomTextBox
             required
             name="modulePath"
-            label="Folder Path"
+            label="Folder Path (Where to create folders and files)"
             fullWidth
             value={moduleInfo.modulePath}
             onChange={inputOnChange}

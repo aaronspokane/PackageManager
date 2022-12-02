@@ -10,16 +10,23 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     let _data = "";
     let _xmlEdit = new Array<XmlEdit>();
     let _configuration = new Array<Configuration>();
+    let _registrationURL = "";
+    let _webServiceName = "";
+    let _assembly = "";
+    let _objectType = "";
+    let _objectMethod = "";
+    let _assembly_comments = "";
 
     const dataEvents = xmlDoc.current!.querySelectorAll("DataEventTable");
     const _summary = wikiInfo.summary ? wikiInfo.summary : Constants.DEFULT_WIKI_SUMMARY;
     const _links = wikiInfo.specificationLink ? wikiInfo.specificationLink : Constants.DEFULT_WIKI_SPECIFICATION_LINK;   
     const _direction = wikiInfo.direction ? wikiInfo.direction : Constants.DEFULT_WIKI_SPECIFICATION_DIRECTION;  
-    const globalList = Array.from(xmlDoc.current!.querySelectorAll('Variables Variable[VariableType="GLOBAL"]'));
-    const serviceList = Array.from(xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])'));
-    const connectors = xmlDoc.current!.querySelectorAll('Connectors Connector');
-    const gvMaxLength =  Math.max(...globalList.map(x => x.getAttribute("Name")!.length));            
-    const svMaxLength =  Math.max(...serviceList.map(x => x.getAttribute("Name")!.length));     
+    const _globalList = Array.from(xmlDoc.current!.querySelectorAll('Variables Variable[VariableType="GLOBAL"]'));
+    const _serviceList = Array.from(xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])'));
+    const _allVariableList = Array.from(xmlDoc.current!.querySelectorAll('Variables Variable'));
+    const _connectors = xmlDoc.current!.querySelectorAll('Connectors Connector'); 
+    const _gvMaxLength =  Math.max(..._globalList.map(x => x.getAttribute("Name")!.length));            
+    const _svMaxLength =  Math.max(..._serviceList.map(x => x.getAttribute("Name")!.length));     
 
     // toc
     _data = "{toc}\n\n";
@@ -43,8 +50,8 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     _data += "h1. WorkFlow\n";
     _data += `* Workflow adapters.\n\n`; 
 
-    if(connectors) {
-        connectors.forEach((node) => {
+    if(_connectors) {
+        _connectors.forEach((node) => {
             let _id;
             let _description;
             let _comment;
@@ -55,7 +62,13 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
                     let _firstComment;
                     item.childNodes.forEach((firstAdpater) => {
                         if(firstAdpater.nodeName === "Type" && firstAdpater.textContent !== "Event Pipe") {
-                            _firstType = firstAdpater.textContent;
+                            _firstType = firstAdpater.textContent;                            
+                        }
+                        else if(firstAdpater.nodeName === "RegistrationURL" && firstAdpater.textContent !== "") {
+                            _registrationURL = firstAdpater.textContent ?? "";
+                        }
+                        else if(firstAdpater.nodeName === "WebServiceName" && firstAdpater.textContent !== "") {
+                            _webServiceName = firstAdpater.textContent ?? "";
                         }
                         else if(firstAdpater.nodeName === "Comments" && firstAdpater.textContent !== "") {
                             _firstComment = firstAdpater.textContent;
@@ -112,6 +125,12 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
                             )
                         }
                     }
+                    else if(_type && _type[0].textContent === "Library") {                        
+                        _assembly = _destinationAdapter.filter(x => x.nodeName === "Assembly")[0].textContent ?? "";
+                        _objectType =  _destinationAdapter.filter(x => x.nodeName === "ObjectType")[0].textContent ?? "";
+                        _objectMethod  = _destinationAdapter.filter(x => x.nodeName === "ObjectMethod")[0].textContent ?? "";
+                        _assembly_comments =  _destinationAdapter.filter(x => x.nodeName === "Comments")[0].textContent ?? "";
+                    }
 
                     _comment = _destinationAdapter.filter(x => x.nodeName === "Comments")[0].textContent ?? "";                   
                 }
@@ -145,7 +164,25 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
           _data += `   }\n`;
           _data += "{noformat} \n\n"; 
       }
+    
+    // work flow service calls
+    _data += `h2. WorkFlow Service Calls\n`;    
+    _data += `* Used when this service makes a call to another service within the same package\n\n`;   
+    _data += `${Constants.DEFAULT_WIKI_TEXT}\n\n`;     
 
+    // configuration
+    _data += `h1. Configuration\n`;  
+    _data += `Provide values for:\n`;  
+    _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
+    if(_allVariableList) {
+        _allVariableList.forEach((node) => {
+            const _value = node.getAttribute("Value");
+            if(_value && _value.startsWith('[') && _value.endsWith("]"))
+                _data += `   ${node.getAttribute("Name")}\n`; 
+        });    
+    }
+    _data += "{noformat} \n\n"; 
+    
     // technical details
     _data += `h1. Technical Details\n\n`; 
     _data += `h2. Variables\n`; 
@@ -155,10 +192,10 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     // instance vars
     _data += `* Instance\n\n`;     
       
-    if(globalList) {
-        globalList.forEach((node) => {
+    if(_globalList) {
+        _globalList.forEach((node) => {
         const length = node.getAttribute("Name")!.length;
-        _data += node.getAttribute("Name") + ' '.repeat((gvMaxLength - length) + 3) + node.getAttribute("Value") + `\n`; 
+        _data += node.getAttribute("Name") + ' '.repeat((_gvMaxLength - length) + 3) + node.getAttribute("Value") + `\n`; 
     });
         _data += "{noformat}"; 
         _data += "\n\n"; 
@@ -169,14 +206,14 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     // service vars
     _data += `* Service\n\n`;     
 
-    if(serviceList) {
-        serviceList.forEach((node) => {
+    if(_serviceList) {
+        _serviceList.forEach((node) => {
             const length = node.getAttribute("Name")!.length;
-            _data += node.getAttribute("Name") + ' '.repeat((svMaxLength - length) + 3) + node.getAttribute("Value") + `\n`; 
+            _data += node.getAttribute("Name") + ' '.repeat((_svMaxLength - length) + 3) + node.getAttribute("Value") + `\n`; 
         });
         _data += "{noformat}"; 
         _data += "\n\n"; 
-    }
+    }    
 
     // data events
     _data += "h2. Data Events\n"; 
@@ -199,6 +236,57 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     if(_dataEvents.length > 0)
         _data += _dataEvents.join('\n');
     } 
-    
+
+     // scripts  
+     _data += "\nh2. Scripts\n";
+     _data += "* Used when custom scripts are being used. Typically the case when custom staging tables are being created.\n\n";
+     _data += "'''We were unable to find any information for this section, but you should double check in case we missed it'''";
+ 
+     // sql statements  
+     _data += "\n\nh2. SQL Statements\n";
+     _data += "* Used when interface makes a complex query that needs to be documented\n\n";
+     _data += "'''We were unable to find any information for this section, but you should double check in case we missed it'''"; 
+
+     // web service  
+     _data += "\n\nh1. Web Services\n";
+     _data += "* When using web services fill out this section with the data on Web Services\n\n";
+     _data += "h2. Outbound - WS Request\n"; 
+     _data += "* Used when a library is making a request to an external web service.\n\n"; 
+     _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
+     _data += "'''We were unable to find any information for this section, but you should double check in case we missed it'''\n"
+     _data += "{noformat}\n\n"
+     _data += "h2. Inbound - WS Request\n"; 
+     _data += "* Used with Web Service Entry Point adapter for expected receive xml.\n\n"; 
+     _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
+
+     if(_registrationURL && _webServiceName) {
+        _data += `RegistrationURL ${_registrationURL}\n`; 
+        _data += `WebServiceName ${_webServiceName}\n\n`; 
+     }
+
+     _data += "* Expected Xml\n\n";
+     _data += "<Enter expected xml here>\n";
+     _data += "{noformat}\n\n"
+     _data += "h2. Inbound - WS Response\n"; 
+     _data += "* Used with Web Service Entry Point adapter for expected return xml.\n\n"; 
+     _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
+     _data += "* On success\n\n";
+     _data += "<Enter success xml here>\n\n";
+     _data += "* On failure\n\n";
+     _data += "<Enter failure xml here>\n";
+     _data += "{noformat}\n\n"
+
+     // Library
+     _data += "h2. Libraries\n";
+     _data += "* Used when the service references an external library.\n\n";
+     if(_assembly) {
+        _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
+        _data += `Assembly   ${_assembly}\n`;
+        _data += `Class      ${_objectType}\n`;
+        _data += `Method     ${_objectMethod}\n`;
+        _data += `Info       ${_assembly_comments}\n`;
+        _data += "{noformat}\n\n"
+     }
+
     return _data;
   }; 
