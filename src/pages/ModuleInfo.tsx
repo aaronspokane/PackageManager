@@ -9,14 +9,17 @@ import { Config, Module } from "../state/Atoms";
 import { Button } from "@mui/material";
 import { v4 as uuidv4 } from 'uuid';
 import { Variable } from "../models/ModuleInfo";
-import API from '../api/Api';
+import { GetAPI } from '../api/Api';
 import CustomTextBox from '../components/CustomTextBox';
 import { stringify } from "querystring";
+import { AxiosInstance } from 'axios';
+import config from '../config/config.json';
 
 const ModuleInfo = () => {
   const configInfo = useRecoilValue(Config);
   const [moduleInfo, setmoduleInfo] = useRecoilState(Module);
   let xmlDoc = useRef<Document | null>(null);
+  let Api: AxiosInstance | null = null;
 
   useEffect(() => {
     if(!moduleInfo.loaded) {
@@ -27,7 +30,7 @@ const ModuleInfo = () => {
       );
       PopulateFields();
     }
-
+    SetApi();
     return () => {};
   }, []);
 
@@ -99,7 +102,7 @@ const ModuleInfo = () => {
   };  
 
   const createFiles = async (e: React.MouseEvent<HTMLButtonElement>) : Promise<void> => {
-    API.post(`/createFiles`, {...moduleInfo, ...configInfo})
+    Api!.post(`/createFiles`, {...moduleInfo, ...configInfo})
     .then((result) => {
         console.log(`Success... ${result}`);
         return result;
@@ -142,6 +145,10 @@ const ModuleInfo = () => {
     });
     
   }, [moduleInfo]);
+
+  const SetApi = () => {
+    Api = GetAPI(config.Api.port);    
+  }
 
   return (
     <React.Fragment>

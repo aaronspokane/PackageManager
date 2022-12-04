@@ -1,5 +1,8 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
+import exp from 'constants';
 
-export default axios.create({
-  baseURL: `http://localhost:3000`
-});
+export const GetAPI = (port: number = 3000) : AxiosInstance => {
+  return axios.create({
+    baseURL: `http://localhost:${port}`
+  });
+}

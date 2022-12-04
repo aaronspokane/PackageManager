@@ -14,6 +14,8 @@ import ModuleInfo from "./ModuleInfo";
 import Review from "./Wiki";
 import { useRecoilValue } from "recoil";
 import { Config } from "../state/Atoms";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 function Copyright() {
   return (
@@ -24,6 +26,13 @@ function Copyright() {
     </Typography>
   );
 }
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+  props,
+  ref,
+) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const steps = ["Config Loader", "Module Info", "Confluence Info", "Jira Info"];
 
@@ -44,11 +53,16 @@ function getStepContent(step: number) {
 
 export default function Main() {
   const [activeStep, setActiveStep] = React.useState(0);
+  const [open, setOpen] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState("");
   const pkgConfig = useRecoilValue(Config);
 
   const handleNext = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if(activeStep === 0 && (!pkgConfig || pkgConfig.packageConfig.length <= 0))
+    if(activeStep === 0 && (!pkgConfig || pkgConfig.packageConfig.length <= 0 || pkgConfig.packageConfigFilePath.length <= 0)) {
+      setErrorMsg("Package Xml File or Package Xml file Path not populated");
+      setOpen(true);
       return;
+    }
       
     setActiveStep(activeStep + 1);
   };
@@ -56,6 +70,10 @@ export default function Main() {
   const handleBack = () => {
     setActiveStep(activeStep - 1);
   };
+
+  const handleClose = () => {
+    setOpen(false);
+  }
 
   return (
     <>
@@ -121,6 +139,11 @@ export default function Main() {
           )}
         </Paper>
         <Copyright />
+        <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{vertical: 'top', horizontal: 'center'}}>
+          <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+            {errorMsg}
+          </Alert>
+      </Snackbar>
       </Container>
     </>
   );

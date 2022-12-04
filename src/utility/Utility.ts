@@ -49,6 +49,7 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     // workflow
     _data += "h1. WorkFlow\n";
     _data += `* Workflow adapters.\n\n`; 
+    _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
 
     if(_connectors) {
         _connectors.forEach((node) => {
@@ -100,13 +101,15 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
                         const _xmlMap = _destinationAdapter.filter(x => x.nodeName === "XmlMap");
                         if(_xmlMap)
                         {
-                            _xmlEdit.push(
-                                 {
-                                    description: _description,
-                                    node: Array.from(_xmlMap[0].childNodes).filter(x => x.nodeName === "Node")[0].textContent ?? "",
-                                    value:  Array.from(_xmlMap[0].childNodes).filter(x => x.nodeName === "Value")[0].textContent ?? "",
-                                }
-                            )
+                            for (let item of _xmlMap) {
+                                _xmlEdit.push(
+                                    {
+                                        description: _description,
+                                        node: Array.from(item.childNodes).filter(x => x.nodeName === "Node")[0].textContent ?? "",
+                                        value:  Array.from(item.childNodes).filter(x => x.nodeName === "Value")[0].textContent ?? "",
+                                    }
+                                )
+                            }
                         }
                     }
                     else if(_type && _type[0].textContent === "Condition") {
