@@ -252,7 +252,7 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
      // sql statements  
      _data += "\n\nh2. SQL Statements\n";
      _data += "* Used when interface makes a complex query that needs to be documented\n\n";
-     _data += "'''We were unable to find any information for this section, but you should double check in case we missed it'''"; 
+     _data += "'''We were unable to find any information for this section, but you should double check in case we missed it'''\n\n"; 
 
      if(_registrationURL?.length > 0 && _webServiceName?.length > 0) {
         // web service  
