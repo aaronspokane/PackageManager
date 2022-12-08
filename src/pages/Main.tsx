@@ -36,12 +36,12 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 
 const steps = ["Config Loader", "Module Info", "Confluence Info", "Jira Info"];
 
-function getStepContent(step: number) {
+function getStepContent(step: number, setErrorMsg: (error: string) => void, setOpen: (open: boolean) => void) {
   switch (step) {
     case 0:
       return <ConfigLoader />;
     case 1:
-      return <ModuleInfo />;
+      return <ModuleInfo error={setErrorMsg} showDialog={setOpen} />;
     case 2:
       return <Review />;
     case 3:
@@ -120,7 +120,7 @@ export default function Main() {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              {getStepContent(activeStep)}
+              {getStepContent(activeStep, setErrorMsg, setOpen)}
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 {activeStep !== 0 && (
                   <Button onClick={handleBack} sx={{ mt: 3, ml: 1 }}>

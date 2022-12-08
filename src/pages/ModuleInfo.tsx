@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
-import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { useRecoilValue, useRecoilState } from "recoil";
@@ -14,12 +13,14 @@ import CustomTextBox from '../components/CustomTextBox';
 import { stringify } from "querystring";
 import { AxiosInstance } from 'axios';
 import config from '../config/config.json';
+import { ValidatorForm } from "react-material-ui-form-validator";
 
-const ModuleInfo = () => {
+const ModuleInfo = ({error, showDialog}) => {
   const configInfo = useRecoilValue(Config);
   const [moduleInfo, setmoduleInfo] = useRecoilState(Module);
   let xmlDoc = useRef<Document | null>(null);
-  let Api: AxiosInstance | null = null;
+  let Api = useRef<AxiosInstance | null>(null);
+  let validationForm: ValidatorForm = React.createRef();
 
   useEffect(() => {
     if(!moduleInfo.loaded) {
@@ -101,25 +102,31 @@ const ModuleInfo = () => {
     });
   };  
 
-  const createFiles = async (e: React.MouseEvent<HTMLButtonElement>) : Promise<void> => {
-    Api!.post(`/createFiles`, {...moduleInfo, ...configInfo})
-    .then((result) => {
-        console.log(`Success... ${result}`);
-        return result;
-    })
-    .catch(err => console.log("error"));
-  }
+  const createFiles = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
+    validationForm.current.isFormValid(false).then(async (isValid) => {
+      if (isValid) {
+        Api.current!.post(`/createFiles`, { ...moduleInfo, ...configInfo })
+          .then((result) => {
+            console.log(`Success... ${result}`);
+            return result;
+          })
+          .catch((err) => console.log("error"));
+      } else {
+        console.log("ERROR!!!");
+      }
+    });
+  };
 
-  const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const inputOnChange = async (e: React.ChangeEvent<HTMLInputElement>) : Promise<void> => {
     e.preventDefault();
     setmoduleInfo((oldModuleInfo) => {
       return { ...oldModuleInfo, [e.target.name]: e.target.value };
     });
   };    
 
-  const onListChange = useCallback ((e: React.ChangeEvent<HTMLInputElement>, key: string, type: string) => {
-    e.preventDefault();   
-        
+  const onListChange = useCallback ((e: React.ChangeEvent<HTMLInputElement>, key?: string, type?: string) => {
+    e.preventDefault();    
+
     let _moduleInfo;  
     switch (type) {
       case "facade":
@@ -135,7 +142,7 @@ const ModuleInfo = () => {
         _moduleInfo = { ...moduleInfo.executeSql };
         break;
     }
-    _moduleInfo[key] = e.target.value;
+    _moduleInfo[key!] = e.target.value;
 
     if(!Object.values(_moduleInfo).includes(""))
       Object.assign(_moduleInfo, {[uuidv4()]: ""});    
@@ -147,11 +154,16 @@ const ModuleInfo = () => {
   }, [moduleInfo]);
 
   const SetApi = () => {
-    Api = GetAPI(config.Api.port);    
-  }
+    Api.current = GetAPI(config.Api.port);    
+  } 
 
   return (
     <React.Fragment>
+       <ValidatorForm   
+          onSubmit={() => {return false}}
+          ref={validationForm}           
+          debounceTime={100}
+      >
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <CustomTextBox
@@ -159,9 +171,10 @@ const ModuleInfo = () => {
             id="moduleName"
             name="moduleName"
             label="Folder Name"
-            fullWidth
+            fullWidth           
             value={moduleInfo.moduleName}
             onChange={inputOnChange}
+            validators={['required']}
             variant="standard"
           />
         </Grid>
@@ -169,10 +182,11 @@ const ModuleInfo = () => {
           <CustomTextBox
             required
             name="modulePath"
-            label="Folder Path (Where to create folders and files)"
+            
             fullWidth
             value={moduleInfo.modulePath}
             onChange={inputOnChange}
+            validators={['required']}
             variant="standard"
           />
         </Grid>
@@ -197,6 +211,7 @@ const ModuleInfo = () => {
             fullWidth
             value={moduleInfo.docPath}
             onChange={inputOnChange}
+            validators={['required']}
             variant="standard"
           />
         </Grid>        
@@ -206,7 +221,7 @@ const ModuleInfo = () => {
               <Grid item xs={12} key={key}>
                 <CustomTextBox                  
                   name="moduleDependencies"
-                  label="Module Dependencies"
+                  label="Module Dependencies (*.dlls)"
                   value={value}
                   fullWidth                  
                   onChange={onListChange}
@@ -224,7 +239,7 @@ const ModuleInfo = () => {
               <Grid item xs={12} key={key}>
                 <CustomTextBox                  
                   name="extendedFacades"
-                  label="Extended Facades"
+                  label="Extended Facades (*.dlls)"
                   value={value}
                   fullWidth                  
                   onChange={onListChange}
@@ -240,14 +255,15 @@ const ModuleInfo = () => {
           Object.entries(moduleInfo.dataEvents).map(([key, value], index) => {
             return (
               <Grid item xs={12} key={key}>
-                <CustomTextBox                  
+                <CustomTextBox    
+                  id="dataEvents"              
                   name="dataEvents"
-                  label="Date Events to Enable"
+                  label="Data Events to Enable"
                   value={value}
-                  fullWidth                  
+                  fullWidth 
                   onChange={onListChange}
                   variant="standard"
-                  index={key}
+                  index={key}                  
                   type="dataEvent"
                 />
               </Grid>
@@ -281,21 +297,17 @@ const ModuleInfo = () => {
             fullWidth
             value={moduleInfo.serviceToEnable}
             onChange={inputOnChange}
+            validators={['required']}
             variant="standard"
           />
         </Grid>
         <Grid item xs={12}>
-          <Button variant="contained" color="secondary" onClick={createFiles}>
+          <Button variant="contained" color="secondary" onClick={createFiles} type="submit">
             Create Files
           </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <FormControlLabel
-            control={<Checkbox color="primary" name="saveCard" value="yes" />}
-            label="Did you commit files to Github"
-          />
-        </Grid>
+        </Grid>      
       </Grid>
+      </ValidatorForm>
     </React.Fragment>
   );
 }

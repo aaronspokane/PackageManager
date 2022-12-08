@@ -1,4 +1,4 @@
-import TextField from "@mui/material/TextField";
+import { TextValidator} from 'react-material-ui-form-validator';
 
 type _moduleInfo = {    
     id?: string;
@@ -7,24 +7,19 @@ type _moduleInfo = {
     label?: string;
     fullWidth?: boolean;
     variant?: "standard" | "filled" | "outlined" | undefined; 
-    onChange?: (e: any, key: string, name: string) => void;
+    onChange?: (e: any, key?: string, name?: string) => void;
     index?: string;
     name?: string;
     type?: string;
+    validators?: any; 
+    multiline?: boolean;
+    rows?: number;
 }
 
-const CustomTextBox = ({id, name, required, label, fullWidth, value, index = "-1", variant, type, onChange}: _moduleInfo) => {
+const CustomTextBox = (props: Partial<_moduleInfo>) => { 
+    const { onChange, ...propsRest} = props
     return (
-        <TextField
-            id={id}
-            required={required}            
-            name={name}
-            label={label}
-            fullWidth={fullWidth}            
-            value={value}
-            onChange={(e) => onChange ? onChange(e, index, type || "") : null} 
-            variant={variant}
-        />
+        <TextValidator {...propsRest} onChange={(e) => onChange ? onChange(e, props.index, props.type) : null}  />
     )
 };
 

@@ -11,17 +11,26 @@ import beautify from "xml-beautifier";
 import { Button, TextField } from "@mui/material";
 import format from "xml-formatter";
 import ModalDialog from "../components/ModalDialog";
+import CustomTextBox from '../components/CustomTextBox';
+import { ValidatorForm } from "react-material-ui-form-validator";
 
 const Wiki = () => {  
 
   const [open, setOpen] = useState(false);  
   const [wikiInfo, setWikiInfo] = useRecoilState(WikiInfo);
+  let validationForm: ValidatorForm = React.createRef();
 
   const handleDialog = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setOpen(!open);
+    validationForm.current.isFormValid(false).then(async (isValid) => {
+      if (isValid) {
+        setOpen(!open);
+      } else {
+        console.log("ERROR!!!");
+      }
+    });
   };
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     e.preventDefault();
     setWikiInfo((oldWikiInfo) => {
       return {...oldWikiInfo, [e.target.name]: e.target.value}  
@@ -30,9 +39,14 @@ const Wiki = () => {
 
   return (
     <React.Fragment>
+       <ValidatorForm   
+          onSubmit={() => {return false}}
+          ref={validationForm}           
+          debounceTime={100}
+      >
       <Grid container spacing={2}>
       <Grid item xs={12}>
-          <TextField            
+          <CustomTextBox            
             id="summary"
             name="summary"
             label="Summary"
@@ -41,38 +55,42 @@ const Wiki = () => {
             rows={2}  
             variant="standard"
             onChange={onChange}
+            validators={['required']}
             value={wikiInfo.summary}
           />
       </Grid>
       <Grid item xs={12}>
-          <TextField            
+          <CustomTextBox            
             id="specificationLink"
             name="specificationLink"
             label="Specification Link (Jira)"
             fullWidth 
             variant="standard"
             onChange={onChange}
+            validators={['required']}
             value={wikiInfo.specificationLink}
           />
       </Grid>
       <Grid item xs={12}>
-          <TextField            
+          <CustomTextBox            
             id="direction"
             name="direction"
             label="Direction - Which way the data goes (FA->Client or Client->FA)"
             fullWidth 
             variant="standard"
             onChange={onChange}
+            validators={['required']}
             value={wikiInfo.direction}
           />
       </Grid>
       <Grid item xs={12}>
-        <Button variant="contained" color="secondary" onClick={handleDialog}>
+        <Button variant="contained" color="secondary" onClick={handleDialog} type="submit">
             Generate Wiki
         </Button>
       </Grid>
       </Grid>
       <ModalDialog show={open} handleClick={handleDialog} />
+      </ValidatorForm>
     </React.Fragment>
   );
 }

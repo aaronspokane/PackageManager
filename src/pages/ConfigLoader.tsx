@@ -4,6 +4,8 @@ import Typography from "@mui/material/Typography";
 import { useRecoilState } from "recoil";
 import { Config, Module } from "../state/Atoms";
 import { defaultModuleInfo } from "../state/Atoms";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 
 export default function ConfigLoader() {
   let fileReader: FileReader;
@@ -40,6 +42,30 @@ export default function ConfigLoader() {
       return { ...oldConfig, [e.target.name]: e.target.value}     
     });        
   }
+
+  const handleXmPathClick = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    let _packageConfigFilePath = fileData.packageConfigFilePath;
+    if (fileData.packageConfigFilePath?.length > 0 && fileData.packageConfigName?.length > 0) {
+      if (e.target.checked) {
+        let lastChar = "";
+
+        if (fileData.packageConfigFilePath.slice(-1) !== "\\") {
+          lastChar = "\\";
+        }
+
+        if (!_packageConfigFilePath.includes(fileData.packageConfigName))
+          _packageConfigFilePath += `${lastChar}${fileData.packageConfigName}`;
+
+      } else {
+        if (_packageConfigFilePath.includes(fileData.packageConfigName))
+          _packageConfigFilePath = _packageConfigFilePath.replace(fileData.packageConfigName, "");
+      }
+
+      setFileData((oldConfig) => {
+        return { ...oldConfig, packageConfigFilePath: _packageConfigFilePath };
+      });
+    }    
+  };
 
   return (
     <React.Fragment>
@@ -79,6 +105,12 @@ export default function ConfigLoader() {
           <Typography variant="h6" fontSize={15} gutterBottom color="grey">
             Package Xml File: {fileData.packageConfigName}
           </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <FormControlLabel
+            control={<Checkbox color="primary" name="saveCard" value="yes" onChange={handleXmPathClick} />}
+            label="Use Package XML file name in Xml file path"
+          />
         </Grid>
         <Grid item xs={12}>
           <TextField

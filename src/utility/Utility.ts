@@ -145,28 +145,32 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     _data += "{noformat}"; 
     _data += "\n\n";
 
-    // workflow edits
-    _data += "h2. WorkFlow Edits\n";
-    _data += "* Used when edits occur the the xml throughout the workflow\n\n";
-    for(let key in _xmlEdit){
-        _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
-        _data += `Adapter: ${_xmlEdit[key].description}\n`;
-        _data += `   ${_xmlEdit[key].node} = ${_xmlEdit[key].value}\n`;
-        _data += "{noformat} \n\n"; 
+    if(_xmlEdit?.length > 0) {
+        // workflow edits
+        _data += "h2. WorkFlow Edits\n";
+        _data += "* Used when edits occur the the xml throughout the workflow\n\n";
+        for(let key in _xmlEdit){
+            _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
+            _data += `Adapter: ${_xmlEdit[key].description}\n`;
+            _data += `   ${_xmlEdit[key].node} = ${_xmlEdit[key].value}\n`;
+            _data += "{noformat} \n\n"; 
+        }
     }
 
-      // workflow Conditions
-      _data += "h2. WorkFlow Conditions\n";
-      _data += "* Used when condition checks occur in the workflow\n\n";
-      for(let key in _configuration){
-          _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
-          _data += `Adapter: ${_configuration[key].description}\n`;
-          _data += `   ${_configuration[key].compareType}\n`;
-          _data += `   {\n`;
-          _data += `      ${_configuration[key].valueA} ${_configuration[key].operator} ${_configuration[key].valueB}\n`;
-          _data += `   }\n`;
-          _data += "{noformat} \n\n"; 
-      }
+    if(_configuration?.length > 0) {
+        // workflow Conditions
+        _data += "h2. WorkFlow Conditions\n";
+        _data += "* Used when condition checks occur in the workflow\n\n";
+        for(let key in _configuration){
+            _data += `{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n`; 
+            _data += `Adapter: ${_configuration[key].description}\n`;
+            _data += `   ${_configuration[key].compareType}\n`;
+            _data += `   {\n`;
+            _data += `      ${_configuration[key].valueA} ${_configuration[key].operator} ${_configuration[key].valueB}\n`;
+            _data += `   }\n`;
+            _data += "{noformat} \n\n"; 
+        }
+    }
     
     // work flow service calls
     _data += `h2. WorkFlow Service Calls\n`;    
@@ -216,13 +220,13 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
         });
         _data += "{noformat}"; 
         _data += "\n\n"; 
-    }    
-
-    // data events
-    _data += "h2. Data Events\n"; 
-    _data += "* List of Data Events used by the interface\n\n";  
+    } 
 
     if (!!dataEvents.length) { 
+     // data events
+     _data += "h2. Data Events\n"; 
+     _data += "* List of Data Events used by the interface\n\n";  
+
       dataEvents.forEach(node => {            
           var formattedXml = format(node.outerHTML, {
               indentation: "  ",
@@ -250,39 +254,38 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
      _data += "* Used when interface makes a complex query that needs to be documented\n\n";
      _data += "'''We were unable to find any information for this section, but you should double check in case we missed it'''"; 
 
-     // web service  
-     _data += "\n\nh1. Web Services\n";
-     _data += "* When using web services fill out this section with the data on Web Services\n\n";
-     _data += "h2. Outbound - WS Request\n"; 
-     _data += "* Used when a library is making a request to an external web service.\n\n"; 
-     _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
-     _data += "'''We were unable to find any information for this section, but you should double check in case we missed it'''\n"
-     _data += "{noformat}\n\n"
-     _data += "h2. Inbound - WS Request\n"; 
-     _data += "* Used with Web Service Entry Point adapter for expected receive xml.\n\n"; 
-     _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
-
-     if(_registrationURL && _webServiceName) {
+     if(_registrationURL?.length > 0 && _webServiceName?.length > 0) {
+        // web service  
+        _data += "\n\nh1. Web Services\n";
+        _data += "* When using web services fill out this section with the data on Web Services\n\n";
+        _data += "h2. Outbound - WS Request\n"; 
+        _data += "* Used when a library is making a request to an external web service.\n\n"; 
+        _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
+        _data += "'''We were unable to find any information for this section, but you should double check in case we missed it'''\n"
+        _data += "{noformat}\n\n"
+        _data += "h2. Inbound - WS Request\n"; 
+        _data += "* Used with Web Service Entry Point adapter for expected receive xml.\n\n"; 
+        _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
         _data += `RegistrationURL ${_registrationURL}\n`; 
-        _data += `WebServiceName ${_webServiceName}\n\n`; 
-     }
-
-     _data += "* Expected Xml\n\n";
-     _data += "<Enter expected xml here>\n";
-     _data += "{noformat}\n\n"
-     _data += "h2. Inbound - WS Response\n"; 
-     _data += "* Used with Web Service Entry Point adapter for expected return xml.\n\n"; 
-     _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
-     _data += "* On success\n\n";
-     _data += "<Enter success xml here>\n\n";
-     _data += "* On failure\n\n";
-     _data += "<Enter failure xml here>\n";
-     _data += "{noformat}\n\n"
-
-     // Library
-     _data += "h2. Libraries\n";
-     _data += "* Used when the service references an external library.\n\n";
+        _data += `WebServiceName ${_webServiceName}\n\n`;
+        _data += "* Expected Xml\n\n";
+        _data += "<Enter expected xml here>\n";
+        _data += "{noformat}\n\n"
+        _data += "h2. Inbound - WS Response\n"; 
+        _data += "* Used with Web Service Entry Point adapter for expected return xml.\n\n"; 
+        _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
+        _data += "* On success\n\n";
+        _data += "<Enter success xml here>\n\n";
+        _data += "* On failure\n\n";
+        _data += "<Enter failure xml here>\n";
+        _data += "{noformat}\n\n"
+    }
+    
      if(_assembly) {
+         // Library
+        _data += "h2. Libraries\n";
+        _data += "* Used when the service references an external library.\n\n";
+
         _data += "{noformat:nopanel=false|panel:borderStyle=solid|bgColor=lemonchiffon}\n";
         _data += `Assembly   ${_assembly}\n`;
         _data += `Class      ${_objectType}\n`;
