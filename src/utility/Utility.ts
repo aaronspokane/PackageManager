@@ -25,8 +25,10 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     const _serviceList = Array.from(xmlDoc.current!.querySelectorAll('Variables Variable:not([VariableType="GLOBAL"])'));
     const _allVariableList = Array.from(xmlDoc.current!.querySelectorAll('Variables Variable'));
     const _connectors = xmlDoc.current!.querySelectorAll('Connectors Connector'); 
-    const _gvMaxLength =  Math.max(..._globalList.map(x => x.getAttribute("Name")!.length));            
-    const _svMaxLength =  Math.max(..._serviceList.map(x => x.getAttribute("Name")!.length));     
+    const _gvMaxLength =  Math.max(..._globalList.map(x => x.getAttribute("Name")!.length)); 
+    const _gvMaxValueLength =  Math.max(..._globalList.map(x => x.getAttribute("Value")!.length));            
+    const _svMaxLength =  Math.max(..._serviceList.map(x => x.getAttribute("Name")!.length));    
+    const _svMaxValueLength =  Math.max(..._serviceList.map(x => x.getAttribute("Value")!.length)); 
 
     // toc
     _data = "{toc}\n\n";
@@ -202,7 +204,8 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     if(_globalList) {
         _globalList.forEach((node) => {
         const length = node.getAttribute("Name")!.length;
-        _data += node.getAttribute("Name") + ' '.repeat((_gvMaxLength - length) + 3) + node.getAttribute("Value") + `\n`; 
+        const valueLength = node.getAttribute("Value")!.length;
+        _data += node.getAttribute("Name") + ' '.repeat((_gvMaxLength - length) + 3) + node.getAttribute("Value") + ' '.repeat((_gvMaxValueLength - valueLength) + 3) + node.getAttribute("VariableDescription") + `\n`; 
     });
         _data += "{noformat}"; 
         _data += "\n\n"; 
@@ -216,7 +219,8 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
     if(_serviceList) {
         _serviceList.forEach((node) => {
             const length = node.getAttribute("Name")!.length;
-            _data += node.getAttribute("Name") + ' '.repeat((_svMaxLength - length) + 3) + node.getAttribute("Value") + `\n`; 
+            const valueLength = node.getAttribute("Value")!.length;
+            _data += node.getAttribute("Name") + ' '.repeat((_svMaxLength - length) + 3) + node.getAttribute("Value") + ' '.repeat((_svMaxValueLength - valueLength) + 3) + node.getAttribute("VariableDescription") + `\n`; 
         });
         _data += "{noformat}"; 
         _data += "\n\n"; 
