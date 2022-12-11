@@ -29,6 +29,10 @@ const Jira = () => {
         });
     }
 
+    const handleGetCommits = () => {
+        
+    }
+
     return (
         <>
           <ValidatorForm   
@@ -42,9 +46,26 @@ const Jira = () => {
                         name="sha"
                         label="Revision Numbers (SHAs)"
                         fullWidth   
-                        onChange={onChange}
-                        validators={['required']} 
+                        onChange={onChange}                        
                         value={jiraInfo.sha}                 
+                        variant="standard" />
+                </Grid>
+                <Grid item xs={12}>
+                    <Button variant="contained" color="secondary" onClick={handleGetCommits} type="submit">
+                        Get Commits from Github
+                    </Button>
+                </Grid> 
+                <Grid item xs={12}>
+                    <CustomTextBox            
+                        id="commits"
+                        name="commits"
+                        label="Commits"
+                        multiline={true}
+                        fullWidth
+                        rows={8}  
+                        onChange={onChange}
+                        validators={['required']}
+                        value={jiraInfo.commits}  
                         variant="standard" />
                 </Grid>
                 <Grid item xs={12}>
@@ -54,7 +75,7 @@ const Jira = () => {
                         label="Testing"
                         multiline={true}
                         fullWidth
-                        rows={10}  
+                        rows={8}  
                         onChange={onChange}
                         validators={['required']}
                         value={jiraInfo.testing}  

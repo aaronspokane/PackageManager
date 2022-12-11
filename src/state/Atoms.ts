@@ -39,6 +39,7 @@ const defaultJira: Jira = {
   sha: "",
   testing: "",
   notes: "", 
+  commits: "",
 };
 
 export const Config = atom({

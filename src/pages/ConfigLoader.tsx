@@ -72,24 +72,6 @@ export default function ConfigLoader() {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h6" gutterBottom>
-            Api File
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <input
-            type="file"
-            name="apiConfigName"
-            id="apiConfig"
-            onChange={handleFileInput}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h6" fontSize={15} gutterBottom color="grey">
-            Api File: {fileData.apiConfigName}
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h6" gutterBottom>
             Package Xml File
           </Typography>
         </Grid>
