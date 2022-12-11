@@ -3,6 +3,6 @@ module.exports = {
         extensions: ['.tsx', '.ts', '.js'],
         fallback: { "http": false, "browser": false, "https": false, 
           "stream": false, "url": false, "buffer": false, "timers": false
-        }
+        }      
       },
 };

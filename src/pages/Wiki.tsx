@@ -6,7 +6,6 @@ import React, { useRef, useState } from "react";
 import { useRecoilState } from "recoil";
 import { Config, Module, WikiInfo } from "../state/Atoms";
 import Grid from '@mui/material/Grid';
-import XMLViewer from "react-xml-viewer";
 import beautify from "xml-beautifier";
 import { Button, TextField } from "@mui/material";
 import format from "xml-formatter";
@@ -89,7 +88,7 @@ const Wiki = () => {
         </Button>
       </Grid>
       </Grid>
-      <ModalDialog show={open} handleClick={handleDialog} />
+      <ModalDialog show={open} handleClick={handleDialog} type="Wiki" />
       </ValidatorForm>
     </React.Fragment>
   );

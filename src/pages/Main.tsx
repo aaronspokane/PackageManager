@@ -11,6 +11,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import ConfigLoader from "./ConfigLoader";
 import ModuleInfo from "./ModuleInfo";
+import Jira from "./Jira";
 import Review from "./Wiki";
 import { useRecoilValue } from "recoil";
 import { Config } from "../state/Atoms";
@@ -45,7 +46,7 @@ function getStepContent(step: number, setErrorMsg: (error: string) => void, setO
     case 2:
       return <Review />;
     case 3:
-        return <Review />;
+        return <Jira />;
     default:
       throw new Error("Unknown step");
   }
@@ -127,13 +128,16 @@ export default function Main() {
                     Back
                   </Button>
                 )}
-                <Button
-                  variant="contained"
-                  onClick={handleNext}
-                  sx={{ mt: 3, ml: 1 }}
-                >
-                  {activeStep === steps.length - 1 ? "Place order" : "Next"}
-                </Button>
+                { 
+                  activeStep === steps.length - 1 ? null :
+                  <Button
+                    variant="contained"
+                    onClick={handleNext}
+                    sx={{ mt: 3, ml: 1 }}
+                  >
+                    Next
+                  </Button>
+                }
               </Box>
             </React.Fragment>
           )}

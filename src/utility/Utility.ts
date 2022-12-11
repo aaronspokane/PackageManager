@@ -1,10 +1,12 @@
-import { Wiki} from "../models/Wiki";
+import { Wiki } from "../models/Wiki";
+import { Jira } from "../models/Jira";
 import { XmlEdit } from "../models/XmlEdit";
 import { Configuration } from "../models/Configuration";
 import Constants from '../const/Constants';
 import format from "xml-formatter";
+import { AxiosInstance } from 'axios';
 
-export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>, wikiInfo: Wiki) => {
+export const GenerateWikiData = async (xmlDoc: React.MutableRefObject<Document | null>, wikiInfo: Wiki) => {
     
     let _dataEvents = Array<string>();
     let _data = "";
@@ -300,3 +302,19 @@ export const GenerateWikiData = (xmlDoc: React.MutableRefObject<Document | null>
 
     return _data;
   }; 
+
+export const GenerateJiraData = async (api: React.MutableRefObject<AxiosInstance | null> , jiraInfo: Jira) => {
+    let data: any;
+    try {
+        //data = await api.current?.get(`https://github.com/AssetworksLLC/FA-Interfaces/commit/${jiraInfo.sha}`);
+
+        const resposne = await api.current!.get(`https://github.com/AssetworksLLC/FA-Interfaces/commit/${jiraInfo.sha}`)
+         console.log(resposne);
+
+
+        var temp = "";
+    } catch(e: any) {
+        data = e.message;
+    }
+    return data;
+}

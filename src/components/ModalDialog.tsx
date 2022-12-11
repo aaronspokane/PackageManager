@@ -1,20 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Modal, Button, TextField, Grid } from '@mui/material';
 import Typography from "@mui/material/Typography";
 import { useRecoilValue, useRecoilState } from "recoil";
-import { Config, WikiInfo } from "../state/Atoms";
+import { Config, WikiInfo, JiraInfo } from "../state/Atoms";
 import format from "xml-formatter";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import Constants from '../const/Constants';
 import { wrap } from "module";
-import { GenerateWikiData } from '../utility/Utility';
+import { GenerateWikiData, GenerateJiraData } from '../utility/Utility';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContentText from '@mui/material/DialogContentText';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
+import { AxiosInstance } from 'axios';
+import { GetAPI } from '../api/Api';
+import config from '../config/config.json';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -25,28 +26,49 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     },
   }));
 
-const ModalDialog = ({show, handleClick}) => {
+const ModalDialog = ({show, handleClick, type}) => {
     let xmlDoc = useRef<Document | null>(null);
     const pkgConfig = useRecoilValue(Config); 
     const [wikiInfo,] = useRecoilState(WikiInfo);
-    const [data, setData] = useState<string>();
+    const jiraInfo = useRecoilValue(JiraInfo); 
+    const [data, setData] = useState<string>("");   
+    let Api = useRef<AxiosInstance | null>(null);
 
-    useEffect(() => {      
+    useEffect(() => {    
+      if(type === "Wiki") {  
         let parser = new DOMParser();
         xmlDoc.current = parser.parseFromString(
           pkgConfig.packageConfig,
           "text/xml"
-        );                   
+        );   
+      } else if(type === "Jira") {
+        SetApi();
+      }             
     }, []);
 
     useEffect(() => {
-        GenerateWikiFields();
-    },[wikiInfo])
+      if(type === "Wiki" && show)
+          GenerateWikiFields();
+    },[wikiInfo, show]);
 
-    const GenerateWikiFields = () => {
-        const _data = GenerateWikiData(xmlDoc, wikiInfo);
+    useEffect(() => {
+      if(type === "Jira" && show)
+        GenerateJiraFields();
+    },[jiraInfo, show]);
+
+    const GenerateWikiFields = async () => {
+        const _data = await GenerateWikiData(xmlDoc, wikiInfo);
+        setData(_data);
+    };     
+
+    const GenerateJiraFields = async () => {
+        const _data = await GenerateJiraData(Api, jiraInfo);
         setData(_data);
     }; 
+
+    const SetApi = () => {
+      Api.current = GetAPI(config.Api.port);    
+    } 
 
     return (
       <>

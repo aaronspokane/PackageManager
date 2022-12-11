@@ -1,7 +1,8 @@
 import { atom } from "recoil";
-import { Configs } from "../models/Configs";
+import { Configs } from "../models/configs";
 import { ModuleInfo, Variable } from "../models/ModuleInfo";
 import { Wiki} from "../models/Wiki";
+import { Jira} from "../models/Jira";
 import { v4 as uuidv4 } from 'uuid';
 
 const defaultConfig: Configs = {
@@ -34,6 +35,12 @@ const defaultWiki: Wiki = {
   direction: "", 
 };
 
+const defaultJira: Jira = {
+  sha: "",
+  testing: "",
+  notes: "", 
+};
+
 export const Config = atom({
   key: "configList",
   default: defaultConfig,
@@ -47,4 +54,9 @@ export const Module = atom({
 export const WikiInfo = atom({
   key: "wikiInfo",
   default: defaultWiki,
+});
+
+export const JiraInfo = atom({
+  key: "jiraInfo",
+  default: defaultJira,
 });
