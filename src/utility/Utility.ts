@@ -303,18 +303,41 @@ export const GenerateWikiData = async (xmlDoc: React.MutableRefObject<Document |
     return _data;
   }; 
 
-export const GenerateJiraData = async (api: React.MutableRefObject<AxiosInstance | null> , jiraInfo: Jira) => {
-    let data: any;
-    try {
-        //data = await api.current?.get(`https://github.com/AssetworksLLC/FA-Interfaces/commit/${jiraInfo.sha}`);
+export const GenerateJiraData = async (jiraInfo: Jira) => {
+    let _data = "";
+    // Commits
+    _data += "h3. Check-in\n";
+    _data += "h4. Commit Message\n\n";
+    _data += "h4. Files Changed\n";
+    _data += jiraInfo.commits;
+    _data += "\n\n";
 
-        const resposne = await api.current!.get(`https://github.com/AssetworksLLC/FA-Interfaces/commit/${jiraInfo.sha}`)
-         console.log(resposne);
+    // Testing
+    _data += "h3. Testing\n";
+    _data += jiraInfo.testing;
+    _data += "\n\n";
 
+    // Package Location
+    _data += "h3. New Package Location\n";
+    _data += "TBD";
+    _data += "\n\n";
 
-        var temp = "";
-    } catch(e: any) {
-        data = e.message;
-    }
-    return data;
+    // Notes
+    _data += "h3.Notes\n";
+    _data += jiraInfo.notes;
+    _data += "\n\n";
+
+    // Github
+    _data += "h3.Github\n";
+    _data += "Pull Request Date:\n";
+    _data += "Pull Request Number:\n";
+    _data += "Target Branch: main\n";
+    _data += "Pull Request Title:\n";
+    _data += "\n\n";
+
+    // Github
+    _data += "h3. Review\n";
+    _data += "* Reviewed by {color:red}NONE{color}\n";
+
+    return _data;
 }

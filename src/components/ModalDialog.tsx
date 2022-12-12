@@ -13,8 +13,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContentText from '@mui/material/DialogContentText';
-import { AxiosInstance } from 'axios';
-import { GetAPI } from '../api/Api';
 import config from '../config/config.json';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -31,8 +29,7 @@ const ModalDialog = ({show, handleClick, type}) => {
     const pkgConfig = useRecoilValue(Config); 
     const [wikiInfo,] = useRecoilState(WikiInfo);
     const jiraInfo = useRecoilValue(JiraInfo); 
-    const [data, setData] = useState<string>("");   
-    let Api = useRef<AxiosInstance | null>(null);
+    const [data, setData] = useState<string>("");
 
     useEffect(() => {    
       if(type === "Wiki") {  
@@ -41,9 +38,7 @@ const ModalDialog = ({show, handleClick, type}) => {
           pkgConfig.packageConfig,
           "text/xml"
         );   
-      } else if(type === "Jira") {
-        SetApi();
-      }             
+      }       
     }, []);
 
     useEffect(() => {
@@ -62,13 +57,9 @@ const ModalDialog = ({show, handleClick, type}) => {
     };     
 
     const GenerateJiraFields = async () => {
-        const _data = await GenerateJiraData(Api, jiraInfo);
+        const _data = await GenerateJiraData(jiraInfo);
         setData(_data);
-    }; 
-
-    const SetApi = () => {
-      Api.current = GetAPI(config.Api.port);    
-    } 
+    };
 
     return (
       <>
