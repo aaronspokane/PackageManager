@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import Grid from '@mui/material/Grid';
 import { Button, TextField } from "@mui/material";
@@ -6,11 +6,19 @@ import ModalDialog from "../components/ModalDialog";
 import CustomTextBox from '../components/CustomTextBox';
 import { ValidatorForm } from "react-material-ui-form-validator";
 import { JiraInfo } from "../state/Atoms";
+import { AxiosInstance } from 'axios';
+import { GetAPI } from '../api/Api';
+import config from '../config/config.json';
 
 const Jira = () => {
     const [open, setOpen] = useState(false);
     let validationForm: ValidatorForm = React.createRef();
     const [jiraInfo, setJiraInfo] = useRecoilState(JiraInfo);
+    let Api = useRef<AxiosInstance | null>(null);
+
+    useEffect(() => {    
+       SetApi();                   
+      }, []);
 
     const handleDialog = (e: React.MouseEvent<HTMLButtonElement>) => {
         validationForm.current.isFormValid(false).then(async (isValid) => {
@@ -30,8 +38,20 @@ const Jira = () => {
     }
 
     const handleGetCommits = () => {
-        
+        if(jiraInfo.sha && jiraInfo.sha.length > 0) {
+            Api.current!.get(`/githubCommits/${jiraInfo.sha}`)
+            .then((result) => {
+                setJiraInfo((oldJiraInfo) => {
+                    return {...oldJiraInfo, commits: result.data}  
+                  });
+            })
+            .catch((err) => console.log("error"));
+        }
     }
+
+    const SetApi = () => {
+        Api.current = GetAPI(config.Api.port);    
+      } 
 
     return (
         <>
@@ -51,7 +71,7 @@ const Jira = () => {
                         variant="standard" />
                 </Grid>
                 <Grid item xs={12}>
-                    <Button variant="contained" color="secondary" onClick={handleGetCommits} type="submit">
+                    <Button variant="contained" color="secondary" onClick={handleGetCommits}>
                         Get Commits from Github
                     </Button>
                 </Grid> 
