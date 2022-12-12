@@ -182,7 +182,7 @@ const ModuleInfo = ({error, showDialog}) => {
           <CustomTextBox
             required
             name="modulePath"
-            
+            label="Folder Path"
             fullWidth
             value={moduleInfo.modulePath}
             onChange={inputOnChange}
