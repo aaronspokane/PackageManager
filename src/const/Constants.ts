@@ -6,3 +6,5 @@ export default class Constants
     static readonly DEFULT_WIKI_SPECIFICATION_DIRECTION = '* Which way the data goes (FA->Client or Client->FA)';    
     static readonly DEFAULT_WIKI_TEXT = `'''We were unable to find any information for this section, but you should double check in case we missed it'''`;    
 }
+
+export const Steps = ["Config Loader", "Module Info", "Confluence Info", "Jira Info"];

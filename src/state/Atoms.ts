@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { Configs } from "../models/configs";
+import { Configs } from "../models/Configs";
 import { ModuleInfo, Variable } from "../models/ModuleInfo";
 import { Wiki} from "../models/Wiki";
 import { Jira} from "../models/Jira";

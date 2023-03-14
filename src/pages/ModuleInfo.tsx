@@ -80,7 +80,7 @@ const ModuleInfo = ({error, showDialog}) => {
       if(!Object.values(_dataEvents).includes(""))
         Object.assign(_dataEvents, {[uuidv4()]: ""});
 
-      Object.assign(dataEvents, moduleInfo.dataEvents );
+      Object.assign(dataEvents, moduleInfo.dataEvents ); // look into
     }
     else 
     {
@@ -110,9 +110,10 @@ const ModuleInfo = ({error, showDialog}) => {
             console.log(`Success... ${result}`);
             return result;
           })
-          .catch((err) => console.log("error"));
-      } else {
-        console.log("ERROR!!!");
+          .catch((err) => {error(err); showDialog(true);});
+      } else {       
+        error("ERROR!!!");
+        showDialog(true);
       }
     });
   };
@@ -301,11 +302,20 @@ const ModuleInfo = ({error, showDialog}) => {
             variant="standard"
           />
         </Grid>
-        <Grid item xs={12}>
-          <Button variant="contained" color="secondary" onClick={createFiles} type="submit">
-            Create Files
-          </Button>
-        </Grid>      
+        <Grid item>
+          <Grid container spacing={2}>
+            <Grid item>
+              <Button variant="contained" color="secondary" onClick={createFiles} type="submit">
+                Create Files
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button variant="contained" color="secondary" onClick={createFiles} type="submit">
+                Create Doc Only
+              </Button>
+            </Grid>
+          </Grid>     
+        </Grid>
       </Grid>
       </ValidatorForm>
     </React.Fragment>

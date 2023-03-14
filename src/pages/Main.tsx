@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { Suspense } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -9,35 +9,35 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import ConfigLoader from "./ConfigLoader";
-import ModuleInfo from "./ModuleInfo";
-import Jira from "./Jira";
-import Review from "./Wiki";
 import { useRecoilValue } from "recoil";
 import { Config } from "../state/Atoms";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { Steps } from '../const/Constants';
 
-function Copyright() {
+const ConfigLoader = React.lazy(() => import("./ConfigLoader"));
+const ModuleInfo = React.lazy(() => import("./ModuleInfo"));
+const Jira = React.lazy(() => import("./Jira"));
+const Review = React.lazy(() => import("./Wiki"));
+
+const Copyright = () => {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
       {"Copyright © "}
-      Package Manager {new Date().getFullYear()}
+        Package Manager {new Date().getFullYear()}
       {"."}
     </Typography>
   );
 }
 
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>((
   props,
   ref,
-) {
+) => {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const steps = ["Config Loader", "Module Info", "Confluence Info", "Jira Info"];
-
-function getStepContent(step: number, setErrorMsg: (error: string) => void, setOpen: (open: boolean) => void) {
+const getStepContent = (step: number, setErrorMsg: (error: string) => void, setOpen: (open: boolean) => void) => {
   switch (step) {
     case 0:
       return <ConfigLoader />;
@@ -52,7 +52,7 @@ function getStepContent(step: number, setErrorMsg: (error: string) => void, setO
   }
 }
 
-export default function Main() {
+const Main = () => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [open, setOpen] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
@@ -102,26 +102,23 @@ export default function Main() {
             Package Wizard
           </Typography>
           <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
-            {steps.map((label) => (
+            {Steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
               </Step>
             ))}
           </Stepper>
-          {activeStep === steps.length ? (
+          {activeStep === Steps.length ? (
             <React.Fragment>
               <Typography variant="h5" gutterBottom>
-                Thank you for your order.
-              </Typography>
-              <Typography variant="subtitle1">
-                Your order number is #2001539. We have emailed your order
-                confirmation, and will send you an update when your order has
-                shipped.
-              </Typography>
+                Done with Package Manager.
+              </Typography>              
             </React.Fragment>
           ) : (
             <React.Fragment>
-              {getStepContent(activeStep, setErrorMsg, setOpen)}
+              <Suspense fallback={<div>Loading...</div>}>
+                {getStepContent(activeStep, setErrorMsg, setOpen)}
+              </Suspense>
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 {activeStep !== 0 && (
                   <Button onClick={handleBack} sx={{ mt: 3, ml: 1 }}>
@@ -129,7 +126,7 @@ export default function Main() {
                   </Button>
                 )}
                 { 
-                  activeStep === steps.length - 1 ? null :
+                  activeStep === Steps.length - 1 ? null :
                   <Button
                     variant="contained"
                     onClick={handleNext}
@@ -152,3 +149,5 @@ export default function Main() {
     </>
   );
 }
+
+export default Main;

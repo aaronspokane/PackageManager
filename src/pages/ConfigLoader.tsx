@@ -7,7 +7,7 @@ import { defaultModuleInfo } from "../state/Atoms";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 
-export default function ConfigLoader() {
+const ConfigLoader = () => {
   let fileReader: FileReader;
   const inputId = useRef("");
   const [fileData, setFileData] = useRecoilState(Config);
@@ -25,7 +25,7 @@ export default function ConfigLoader() {
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    if (!e.target.files) return;
+    if (!e.target.files?.length) return;
 
     fileReader = new FileReader();
     fileReader.onloadend = handleFileRead;
@@ -109,3 +109,5 @@ export default function ConfigLoader() {
     </React.Fragment>
   );
 }
+
+export default ConfigLoader;
