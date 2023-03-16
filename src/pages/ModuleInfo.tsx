@@ -8,18 +8,15 @@ import { Config, Module } from "../state/Atoms";
 import { Button } from "@mui/material";
 import { v4 as uuidv4 } from 'uuid';
 import { Variable } from "../models/ModuleInfo";
-import { GetAPI } from '../api/Api';
 import CustomTextBox from '../components/CustomTextBox';
 import { stringify } from "querystring";
-import { AxiosInstance } from 'axios';
-import config from '../config/config.json';
 import { ValidatorForm } from "react-material-ui-form-validator";
+import * as _Api from '../api/Api'
 
 const ModuleInfo = ({error, showDialog}) => {
   const configInfo = useRecoilValue(Config);
   const [moduleInfo, setmoduleInfo] = useRecoilState(Module);
   let xmlDoc = useRef<Document | null>(null);
-  let Api = useRef<AxiosInstance | null>(null);
   let validationForm: ValidatorForm = React.createRef();
 
   useEffect(() => {
@@ -30,8 +27,7 @@ const ModuleInfo = ({error, showDialog}) => {
         "text/xml"
       );
       PopulateFields();
-    }
-    SetApi();
+    }    
     return () => {};
   }, []);
 
@@ -105,12 +101,12 @@ const ModuleInfo = ({error, showDialog}) => {
   const createFiles = async (e: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
     validationForm.current.isFormValid(false).then(async (isValid) => {
       if (isValid) {
-        Api.current!.post(`/createFiles`, { ...moduleInfo, ...configInfo })
-          .then((result) => {
+        _Api.Post(`/createFiles`, { ...moduleInfo, ...configInfo })
+           .then((result) => {
             console.log(`Success... ${result}`);
             return result;
           })
-          .catch((err) => {error(err); showDialog(true);});
+          .catch((err) => {error(err.message); showDialog(true);});  
       } else {       
         error("ERROR!!!");
         showDialog(true);
@@ -152,11 +148,7 @@ const ModuleInfo = ({error, showDialog}) => {
       return { ...oldModuleInfo, [e.target.name]: _moduleInfo };
     });
     
-  }, [moduleInfo]);
-
-  const SetApi = () => {
-    Api.current = GetAPI(config.Api.port);    
-  } 
+  }, [moduleInfo]); 
 
   return (
     <React.Fragment>

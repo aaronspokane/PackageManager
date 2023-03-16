@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -14,7 +14,8 @@ import { Config } from "../state/Atoms";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { Steps } from '../const/Constants';
-
+import { Instantiate } from '../api/Api';
+import config from '../config/config.json';
 const ConfigLoader = React.lazy(() => import("./ConfigLoader"));
 const ModuleInfo = React.lazy(() => import("./ModuleInfo"));
 const Jira = React.lazy(() => import("./Jira"));
@@ -57,6 +58,14 @@ const Main = () => {
   const [open, setOpen] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
   const pkgConfig = useRecoilValue(Config);
+
+  useEffect(() => {
+    SetApi();
+  },[]);
+
+  const SetApi = () => {
+    Instantiate(`${config.Api.url}`, config.Api.port)
+  } 
 
   const handleNext = (e: React.MouseEvent<HTMLButtonElement>) => {
     if(activeStep === 0 && (!pkgConfig || pkgConfig.packageConfig.length <= 0 || pkgConfig.packageConfigFilePath.length <= 0)) {
