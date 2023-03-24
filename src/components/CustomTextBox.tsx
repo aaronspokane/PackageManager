@@ -1,4 +1,5 @@
 import { TextValidator} from 'react-material-ui-form-validator';
+import React from 'react';
 
 type _moduleInfo = {    
     id?: string;
@@ -23,4 +24,4 @@ const CustomTextBox = (props: Partial<_moduleInfo>) => {
     )
 };
 
-export default CustomTextBox;
+export default React.memo(CustomTextBox);

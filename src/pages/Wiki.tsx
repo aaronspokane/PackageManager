@@ -2,7 +2,7 @@ import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback } from "react";
 import { useRecoilState } from "recoil";
 import { Config, Module, WikiInfo } from "../state/Atoms";
 import Grid from '@mui/material/Grid';
@@ -29,12 +29,12 @@ const Wiki = () => {
     });
   };
 
-  const onChange = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setWikiInfo((oldWikiInfo) => {
       return {...oldWikiInfo, [e.target.name]: e.target.value}  
     });
-  }  
+  }, [wikiInfo]);  
 
   return (
     <React.Fragment>

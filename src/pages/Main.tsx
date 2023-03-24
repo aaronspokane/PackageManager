@@ -38,30 +38,16 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>((
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const getStepContent = (step: number, setErrorMsg: (error: string) => void, setOpen: (open: boolean) => void) => {
-  switch (step) {
-    case 0:
-      return <ConfigLoader />;
-    case 1:
-      return <ModuleInfo error={setErrorMsg} showDialog={setOpen} />;
-    case 2:
-      return <Review />;
-    case 3:
-        return <Jira />;
-    default:
-      throw new Error("Unknown step");
-  }
-}
 
 const Main = () => {
   const [activeStep, setActiveStep] = React.useState(0);
   const [open, setOpen] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
-  const pkgConfig = useRecoilValue(Config);
-
+  const pkgConfig = useRecoilValue(Config);  
+  
   useEffect(() => {
     SetApi();
-  },[]);
+  }, []);
 
   const SetApi = () => {
     Instantiate(`${config.Api.url}`, config.Api.port)
@@ -76,6 +62,21 @@ const Main = () => {
       
     setActiveStep(activeStep + 1);
   };
+
+  const getStepContent = (step: number, setErrorMsg: (error: string) => void, setOpen: (open: boolean) => void) => {
+    switch (step) {
+      case 0:
+        return <ConfigLoader />;
+      case 1:
+        return <ModuleInfo error={setErrorMsg} showDialog={setOpen} />;
+      case 2:
+        return <Review />;
+      case 3:
+          return <Jira />;
+      default:
+        throw new Error("Unknown step");
+    }
+  }
 
   const handleBack = () => {
     setActiveStep(activeStep - 1);

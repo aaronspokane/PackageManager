@@ -44,12 +44,12 @@ const ModalDialog = ({show, handleClick, type}) => {
     useEffect(() => {
       if(type === "Wiki" && show)
           GenerateWikiFields();
-    },[wikiInfo, show]);
+    },[show]);
 
     useEffect(() => {
       if(type === "Jira" && show)
         GenerateJiraFields();
-    },[jiraInfo, show]);
+    },[show]);
 
     const GenerateWikiFields = async () => {
         const _data = await GenerateWikiData(xmlDoc, wikiInfo);
@@ -94,4 +94,4 @@ const ModalDialog = ({show, handleClick, type}) => {
     );
 };
 
-export default ModalDialog;
+export default React.memo(ModalDialog);
