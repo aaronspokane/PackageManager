@@ -88,7 +88,9 @@ const Wiki = () => {
         </Button>
       </Grid>
       </Grid>
-      <ModalDialog show={open} handleClick={handleDialog} type="Wiki" />
+      { open &&
+        <ModalDialog show={open} handleClick={handleDialog} type="Wiki" />
+      }
       </ValidatorForm>
     </React.Fragment>
   );
