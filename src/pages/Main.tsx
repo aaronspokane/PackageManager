@@ -19,6 +19,7 @@ import config from '../config/config.json';
 const ConfigLoader = React.lazy(() => import("./ConfigLoader"));
 const ModuleInfo = React.lazy(() => import("./ModuleInfo"));
 const Jira = React.lazy(() => import("./Jira"));
+
 const Review = React.lazy(() => import("./Wiki"));
 
 const Copyright = () => {
@@ -50,7 +51,7 @@ const Main = () => {
   }, []);
 
   const SetApi = () => {
-    Instantiate(`${config.Api.url}`, config.Api.port)
+    Instantiate(config.Api.url, config.Api.port)
   } 
 
   const handleNext = (e: React.MouseEvent<HTMLButtonElement>) => {

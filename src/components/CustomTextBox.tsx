@@ -20,7 +20,7 @@ type _moduleInfo = {
 const CustomTextBox = (props: Partial<_moduleInfo>) => { 
     const { onChange, ...propsRest} = props
     return (
-        <TextValidator {...propsRest} onChange={(e) => onChange ? onChange(e, props.index, props.type) : null}  />
+        <TextValidator {...propsRest} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange ? onChange(e, props.index, props.type) : null}  />
     )
 };
 

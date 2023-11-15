@@ -119,7 +119,9 @@ const Jira = () => {
                     </Button>
                 </Grid>             
             </Grid>
-            <ModalDialog show={open} handleClick={handleDialog} type="Jira" />
+            { open &&
+                <ModalDialog show={open} handleClick={handleDialog} type="Jira" />
+            }
           </ValidatorForm>
         </>
     );

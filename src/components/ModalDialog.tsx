@@ -14,6 +14,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContentText from '@mui/material/DialogContentText';
 import config from '../config/config.json';
+import { useTransition } from 'react';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -30,6 +31,7 @@ const ModalDialog = ({show, handleClick, type}) => {
     const [wikiInfo,] = useRecoilState(WikiInfo);
     const jiraInfo = useRecoilValue(JiraInfo); 
     const [data, setData] = useState<string>("");
+    const [isPending, startTransion] = useTransition();
 
     useEffect(() => {    
       if(type === "Wiki") {  
@@ -43,12 +45,16 @@ const ModalDialog = ({show, handleClick, type}) => {
 
     useEffect(() => {
       if(type === "Wiki" && show)
+        startTransion(() => {
           GenerateWikiFields();
-    },[show]);
+        });
+    }, [wikiInfo]);
 
     useEffect(() => {
       if(type === "Jira" && show)
+      startTransion(() => {
         GenerateJiraFields();
+      });
     },[show]);
 
     const GenerateWikiFields = async () => {

@@ -114,17 +114,16 @@ const ModuleInfo = ({error, showDialog}) => {
     });
   };
 
-  const inputOnChange = async (e: React.ChangeEvent<HTMLInputElement>) : Promise<void> => {
-    e.preventDefault();
-    setmoduleInfo((oldModuleInfo) => {
-      return { ...oldModuleInfo, [e.target.name]: e.target.value };
+  const inputOnChange = async ({preventDefault, target: {name, value}}: React.ChangeEvent<HTMLInputElement>) : Promise<void> => {  
+    setmoduleInfo((oldModuleInfo) => {     
+      return { ...oldModuleInfo, [name]: value };
     });
   };    
 
   const onListChange = useCallback ((e: React.ChangeEvent<HTMLInputElement>, key?: string, type?: string) => {
     e.preventDefault();    
 
-    let _moduleInfo;  
+    let _moduleInfo: Record<string,string> = {};  
     switch (type) {
       case "facade":
         _moduleInfo = { ...moduleInfo.extendedFacades };
@@ -166,7 +165,7 @@ const ModuleInfo = ({error, showDialog}) => {
             label="Folder Name"
             fullWidth           
             value={moduleInfo.moduleName}
-            onChange={inputOnChange}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => inputOnChange(e)}
             validators={['required']}
             variant="standard"
           />
